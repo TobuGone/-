@@ -221,7 +221,7 @@ public class InterfaceBeanSystemMessageController {
 	}
 	
 	/**
-	 * 删除PMS固件更新生成的临时zip文件
+	 * 删除PMS固件更新生成的临时文件
 	 * 2018-04-10  huzi
 	 * @param hardwareVersion   硬件型号
 	 * @param softwareVersion	软件型号
