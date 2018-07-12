@@ -1,0 +1,157 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.kapphk.pms.dao.mapper.BeanRoleResourceMapper" >
+    <resultMap id="BaseResultMap" type="com.kapphk.pms.bean.BeanRoleResource" >
+        <!--  自动生成 2016年01月06日 表与实体类字段对应 -->
+        <id column="id" property="id" jdbcType="INTEGER" />
+        <result column="resource_id" property="resourceId" jdbcType="INTEGER" />
+        <result column="role_id" property="roleId" jdbcType="INTEGER" />
+    </resultMap>
+    
+    <sql id="Base_Column_List" >
+        <!--  自动生成 2016年01月06日 表字段名称 -->
+        id, resource_id, role_id
+    </sql>
+    
+    <sql id="findByPageSql" >
+        <!-- WARNING -  自动生成 2016-01-06  分页查询SQL -->
+        select a.* from sys_role_resource a
+        <where >
+            <if test="param.id != null " >
+                and a.id = #{param.id,jdbcType=INTEGER}
+            </if>
+            <if test="param.resourceId != null " >
+                and a.resource_id = #{param.resourceId,jdbcType=INTEGER}
+            </if>
+            <if test="param.roleId != null " >
+                and a.role_id = #{param.roleId,jdbcType=INTEGER}
+            </if>
+        </where>
+        order by a.id desc
+    </sql>
+    
+    <select id="findByPage" resultMap="BaseResultMap" >
+        <!-- WARNING -  自动生成 2016-01-06  分页查询 -->
+        select temp.* from (
+        <include refid="findByPageSql" />
+        ) temp limit #{offset}, #{pageSize}
+    </select>
+    
+    <select id="findByPageCount" resultType="java.lang.Integer" >
+        <!-- WARNING -  自动生成 2016-01-06  分页查询总条数 -->
+        select count(1) from (
+        <include refid="findByPageSql" />
+        ) temp 
+    </select>
+    
+    <select id="findById" resultMap="BaseResultMap" parameterType="java.lang.Integer" >
+        <!--  自动生成 2016年01月06日 根据ID查询 -->
+        select 
+        <include refid="Base_Column_List" />
+        from sys_role_resource
+        where id = #{id,jdbcType=INTEGER}
+    </select>
+    
+    <select id="load" resultMap="BaseResultMap" >
+        <!-- WARNING -  自动生成 2016-01-06  根据多个ID查询 -->
+        select 
+        <include refid="Base_Column_List" />
+        from sys_role_resource where id in 
+        <foreach collection="ids" item="item" open="(" separator="," close=")" >
+            #{item}
+        </foreach>
+    </select>
+    
+    <select id="all" resultMap="BaseResultMap" >
+        <!-- WARNING -  自动生成 2016-01-06  查询所有 -->
+        select 
+        <include refid="Base_Column_List" />
+        from sys_role_resource
+    </select>
+    
+    <select id="count" resultType="java.lang.Integer" >
+        <!-- WARNING -  自动生成 2016-01-06 查询总条数 -->
+        select count(1) from sys_role_resource
+    </select>
+    
+    <update id="update" parameterType="com.kapphk.pms.bean.BeanRoleResource" >
+        <!--  自动生成 2016年01月06日 更新数据 -->
+        update sys_role_resource
+        <set >
+            <if test="resourceId != null" >
+                resource_id = #{resourceId,jdbcType=INTEGER},
+            </if>
+            <if test="roleId != null" >
+                role_id = #{roleId,jdbcType=INTEGER},
+            </if>
+        </set>
+        where id = #{id,jdbcType=INTEGER}
+    </update>
+    
+    <insert id="insert" parameterType="com.kapphk.pms.bean.BeanRoleResource" useGeneratedKeys="true" keyProperty="id" >
+        <!--  自动生成 2016年01月06日 添加数据 -->
+        insert into sys_role_resource
+        <trim prefix="(" suffix=")" suffixOverrides="," >
+            <if test="resourceId != null" >
+                resource_id,
+            </if>
+            <if test="roleId != null" >
+                role_id,
+            </if>
+        </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides="," >
+            <if test="resourceId != null" >
+                #{resourceId,jdbcType=INTEGER},
+            </if>
+            <if test="roleId != null" >
+                #{roleId,jdbcType=INTEGER},
+            </if>
+        </trim>
+    </insert>
+    
+    <insert id="inserts" parameterType="java.util.List" >
+        <!-- WARNING -  自动生成 2016-01-06 添加多条数据 -->
+        insert into sys_role_resource (resource_id, role_id)
+        values
+        <foreach collection="list" item="item" separator="," >
+            (#{item.resourceId,jdbcType=INTEGER}, #{item.roleId,jdbcType=INTEGER})
+        </foreach>
+    </insert>
+    
+    <delete id="delete" parameterType="java.lang.Integer" >
+        <!--  自动生成 2016年01月06日 删除数据 -->
+        delete from sys_role_resource
+        where id = #{id,jdbcType=INTEGER}
+    </delete>
+    
+    <delete id="deletes" >
+        <!-- WARNING -  自动生成 2016-01-06 删除多条数据 -->
+        delete from sys_role_resource where id in 
+        <foreach collection="ids" item="item" open="(" separator="," close=")" >
+            #{item}
+        </foreach>
+    </delete>
+    
+    <delete id="deleteByEntity" >
+        <!-- WARNING -  自动生成 2016-01-06 通过实体类中的条件删除数据 -->
+        delete from sys_role_resource
+        <where >
+            <if test="param.id != null " >
+                and id = #{param.id,jdbcType=INTEGER}
+            </if>
+            <if test="param.resourceId != null " >
+                and resource_id = #{param.resourceId,jdbcType=INTEGER}
+            </if>
+            <if test="param.roleId != null " >
+                and role_id = #{param.roleId,jdbcType=INTEGER}
+            </if>
+        </where>
+    </delete>
+    
+    <select id="findAll" resultMap="BaseResultMap" >
+        <!-- WARNING -  自动生成 2016-01-06  通过实体中的条件查询所有 -->
+        select temp.* from (
+        <include refid="findByPageSql" />
+        ) temp 
+    </select>
+</mapper>

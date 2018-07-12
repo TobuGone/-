@@ -1,0 +1,244 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.kapphk.pms.dao.mapper.BeanErrorProblemMapper" >
+    <resultMap id="BaseResultMap" type="com.kapphk.pms.bean.BeanErrorProblem" >
+        <!--  自动生成 2016年01月13日 表与实体类字段对应 -->
+        <id column="id" property="id" jdbcType="BIGINT" />
+        <result column="error_name" property="errorName" jdbcType="VARCHAR" />
+        <result column="error_number" property="errorNumber" jdbcType="VARCHAR" />
+        <result column="create_time" property="createTime" jdbcType="VARCHAR" />
+    </resultMap>
+    
+    <resultMap id="ResultMapWithBLOBs" type="com.kapphk.pms.bean.BeanErrorProblem" extends="BaseResultMap" >
+        <!--  自动生成 2016年01月13日 表与实体类字段对应 -->
+        <result column="content" property="content" jdbcType="LONGVARCHAR" />
+    </resultMap>
+    
+    <sql id="Base_Column_List" >
+        <!--  自动生成 2016年01月13日 表字段名称 -->
+        id, error_name, error_number, create_time
+    </sql>
+    
+    <sql id="Blob_Column_List" >
+        <!--  自动生成 2016年01月13日 表字段名称 -->
+        content
+    </sql>
+    
+    <sql id="findByPageSql" >
+        <!-- WARNING -  自动生成 2016-01-13  分页查询SQL -->
+        select a.* from sys_error_problem a
+        <where >
+            <if test="param.id != null " >
+                and a.id = #{param.id,jdbcType=BIGINT}
+            </if>
+            <if test="param.errorName != null and param.errorName != ''" >
+                and a.error_name = #{param.errorName,jdbcType=VARCHAR}
+            </if>
+            <if test="param.errorNumber != null and param.errorNumber != ''" >
+                and a.error_number = #{param.errorNumber,jdbcType=VARCHAR}
+            </if>
+            <if test="param.content != null " >
+                and a.content = #{param.content,jdbcType=LONGVARCHAR}
+            </if>
+        </where>
+        order by a.id desc
+    </sql>
+    
+    <select id="findByPage" resultMap="BaseResultMap" >
+        <!-- WARNING -  自动生成 2016-01-13  分页查询 -->
+        select temp.* from (
+        <include refid="findByPageSql" />
+        ) temp limit #{offset}, #{pageSize}
+    </select>
+    
+    <select id="findByPageCount" resultType="java.lang.Integer" >
+        <!-- WARNING -  自动生成 2016-01-13  分页查询总条数 -->
+        select count(1) from (
+        <include refid="findByPageSql" />
+        ) temp 
+    </select>
+    
+    <select id="findById" resultMap="ResultMapWithBLOBs" parameterType="java.lang.Long" >
+        <!--  自动生成 2016年01月13日 根据ID查询 -->
+        select 
+        <include refid="Base_Column_List" />
+        ,
+        <include refid="Blob_Column_List" />
+        from sys_error_problem
+        where id = #{id,jdbcType=BIGINT}
+    </select>
+    
+    <select id="load" resultMap="BaseResultMap" >
+        <!-- WARNING -  自动生成 2016-01-13  根据多个ID查询 -->
+        select 
+        <include refid="Base_Column_List" />
+        from sys_error_problem where id in 
+        <foreach collection="ids" item="item" open="(" separator="," close=")" >
+            #{item}
+        </foreach>
+    </select>
+    
+    <select id="all" resultMap="BaseResultMap" >
+        <!-- WARNING -  自动生成 2016-01-13  查询所有 -->
+        select 
+        <include refid="Base_Column_List" />
+        from sys_error_problem
+    </select>
+    
+    <select id="count" resultType="java.lang.Integer" >
+        <!-- WARNING -  自动生成 2016-01-13 查询总条数 -->
+        select count(1) from sys_error_problem
+    </select>
+    
+    <update id="update" parameterType="com.kapphk.pms.bean.BeanErrorProblem" >
+        <!--  自动生成 2016年01月13日 更新数据 -->
+        update sys_error_problem
+        <set >
+            <if test="errorName != null" >
+                error_name = #{errorName,jdbcType=VARCHAR},
+            </if>
+            <if test="errorNumber != null" >
+                error_number = #{errorNumber,jdbcType=VARCHAR},
+            </if>
+            <if test="createTime != null" >
+                create_time = #{createTime,jdbcType=VARCHAR},
+            </if>
+            <if test="content != null" >
+                content = #{content,jdbcType=LONGVARCHAR},
+            </if>
+        </set>
+        where id = #{id,jdbcType=BIGINT}
+    </update>
+    
+    <insert id="insert" parameterType="com.kapphk.pms.bean.BeanErrorProblem" useGeneratedKeys="true" keyProperty="id" >
+        <!--  自动生成 2016年01月13日 添加数据 -->
+        insert into sys_error_problem
+        <trim prefix="(" suffix=")" suffixOverrides="," >
+            <if test="errorName != null" >
+                error_name,
+            </if>
+            <if test="errorNumber != null" >
+                error_number,
+            </if>
+            <if test="createTime != null" >
+                create_time,
+            </if>
+            <if test="content != null" >
+                content,
+            </if>
+        </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides="," >
+            <if test="errorName != null" >
+                #{errorName,jdbcType=VARCHAR},
+            </if>
+            <if test="errorNumber != null" >
+                #{errorNumber,jdbcType=VARCHAR},
+            </if>
+            <if test="createTime != null" >
+                #{createTime,jdbcType=VARCHAR},
+            </if>
+            <if test="content != null" >
+                #{content,jdbcType=LONGVARCHAR},
+            </if>
+        </trim>
+    </insert>
+    
+    <delete id="delete" parameterType="java.lang.Long" >
+        <!--  自动生成 2016年01月13日 删除数据 -->
+        delete from sys_error_problem
+        where id = #{id,jdbcType=BIGINT}
+    </delete>
+    
+    <update id="updateByPrimaryKeyWithBLOBs" parameterType="com.kapphk.pms.bean.BeanErrorProblem" >
+        <!--  自动生成 2016年01月13日 更新数据 -->
+        update sys_error_problem
+        set error_name = #{errorName,jdbcType=VARCHAR},
+            error_number = #{errorNumber,jdbcType=VARCHAR},
+            create_time = #{createTime,jdbcType=VARCHAR},
+            content = #{content,jdbcType=LONGVARCHAR}
+        where id = #{id,jdbcType=BIGINT}
+    </update>
+    
+    <insert id="inserts" parameterType="java.util.List" >
+        <!-- WARNING -  自动生成 2016-01-13 添加多条数据 -->
+        insert into sys_error_problem (error_name, error_number, create_time, content)
+        values
+        <foreach collection="list" item="item" separator="," >
+            (#{item.errorName,jdbcType=VARCHAR}, #{item.errorNumber,jdbcType=VARCHAR}, #{item.createTime,jdbcType=VARCHAR}, #{item.content,jdbcType=LONGVARCHAR})
+        </foreach>
+    </insert>
+    
+    <delete id="deletes" >
+        <!-- WARNING -  自动生成 2016-01-13 删除多条数据 -->
+        delete from sys_error_problem where id in 
+        <foreach collection="ids" item="item" open="(" separator="," close=")" >
+            #{item}
+        </foreach>
+    </delete>
+    
+    <delete id="deleteByEntity" >
+        <!-- WARNING -  自动生成 2016-01-13 通过实体类中的条件删除数据 -->
+        delete from sys_error_problem
+        <where >
+            <if test="param.id != null " >
+                and id = #{param.id,jdbcType=BIGINT}
+            </if>
+            <if test="param.errorName != null and param.errorName != ''" >
+                and error_name = #{param.errorName,jdbcType=VARCHAR}
+            </if>
+            <if test="param.errorNumber != null and param.errorNumber != ''" >
+                and error_number = #{param.errorNumber,jdbcType=VARCHAR}
+            </if>
+            <if test="param.content != null " >
+                and content = #{param.content,jdbcType=LONGVARCHAR}
+            </if>
+        </where>
+    </delete>
+    
+    <select id="findAll" resultMap="BaseResultMap" >
+        <!-- WARNING -  自动生成 2016-01-13  通过实体中的条件查询所有 -->
+        select temp.* from (
+        <include refid="findByPageSql" />
+        ) temp 
+    </select>
+    
+    
+    <select id="findCondition" resultType="java.util.Map">
+          select 
+          id,error_name as errorName,error_number as errorNumber,content
+          from sys_error_problem
+        <where >
+            <if test="param.id != null " >
+                and id = #{param.id,jdbcType=BIGINT}
+            </if>
+            <if test="param.errorName != null and param.errorName != ''" >
+                and error_name = #{param.errorName,jdbcType=VARCHAR}
+            </if>
+            <if test="param.errorNumber != null and param.errorNumber != ''" >
+                and error_number = #{param.errorNumber,jdbcType=VARCHAR}
+            </if>
+            <if test="param.content != null " >
+                and content = #{param.content,jdbcType=LONGVARCHAR}
+            </if>
+        </where>
+    </select>
+    
+    <select id="findByCondition" resultMap="BaseResultMap">
+          select *  from sys_error_problem
+        <where >
+            <if test="param.id != null " >
+                and id = #{param.id,jdbcType=BIGINT}
+            </if>
+            <if test="param.errorName != null and param.errorName != ''" >
+                and error_name = #{param.errorName,jdbcType=VARCHAR}
+            </if>
+            <if test="param.errorNumber != null and param.errorNumber != ''" >
+                and error_number = #{param.errorNumber,jdbcType=VARCHAR}
+            </if>
+            <if test="param.content != null " >
+                and content = #{param.content,jdbcType=LONGVARCHAR}
+            </if>
+        </where>
+    </select>
+    
+</mapper>

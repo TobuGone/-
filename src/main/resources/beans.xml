@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:context="http://www.springframework.org/schema/context"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans
+						http://www.springframework.org/schema/beans/spring-beans-3.0.xsd
+						http://www.springframework.org/schema/context
+						http://www.springframework.org/schema/context/spring-context-3.0.xsd
+						">
+	<!-- 自动扫描(自动注入) -->
+	<!-- 采用注释的方式配置bean -->  
+	<context:annotation-config />
+	
+	<!-- 引入属性文件 -->
+	<context:property-placeholder location="classpath:jdbc.properties,classpath:system.properties" />
+
+	<!-- 在这个文件里边 是不需要扫描controller注解的  这个controller 注解是需要在 spring-mvc里边维护的  所以要排除掉  -->
+	<context:component-scan base-package="com.kapphk.pms.*,com.alipay.*.service">
+		<context:exclude-filter type="annotation" expression="org.springframework.web.bind.annotation.RestController"/>
+		<context:exclude-filter type="annotation" expression="org.springframework.stereotype.Controller"/>
+	</context:component-scan> 
+	
+	<import resource="classpath:beans-mybatis.xml"/>
+	<import resource="classpath:beans-quartz.xml"/>
+</beans>

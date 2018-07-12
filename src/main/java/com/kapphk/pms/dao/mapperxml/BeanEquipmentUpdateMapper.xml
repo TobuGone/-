@@ -1,0 +1,398 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.kapphk.pms.dao.mapper.BeanEquipmentUpdateMapper" >
+    <resultMap id="BaseResultMap" type="com.kapphk.pms.bean.BeanEquipmentUpdate" >
+        <!--  huzi 2018-05-15 表与实体类字段对应 -->
+        <id column="id" property="id" jdbcType="BIGINT" />
+        <result column="name" property="name" jdbcType="VARCHAR" />
+        <result column="hardware_version" property="hardwareVersion" jdbcType="VARCHAR" />
+        <result column="software_version" property="softwareVersion" jdbcType="VARCHAR" />
+        <result column="version_code" property="versionCode" jdbcType="VARCHAR" />
+        <result column="path" property="path" jdbcType="VARCHAR" />
+        <result column="remark" property="remark" jdbcType="VARCHAR" />
+        <result column="update_personnel" property="updatePersonnel" jdbcType="VARCHAR" />
+        <result column="create_time" property="createTime" jdbcType="VARCHAR" />
+    </resultMap>
+    
+    <sql id="Base_Column_List" >
+        <!--  huzi 2018-05-15 表字段名称 -->
+        id, name, hardware_version, software_version, version_code, path, remark, update_personnel, create_time
+    </sql>
+    
+    
+    <sql id="findByPageSql" >
+        <!-- WARNING -  huzi 2018-05-15  分页查询SQL -->
+        select a.* from sys_equipment_update a
+        <where >
+            <if test="param.id != null " >
+                and a.id = #{param.id,jdbcType=BIGINT}
+            </if>
+            <if test="param.name != null and param.name != ''" >
+                and a.name = #{param.name,jdbcType=VARCHAR}
+            </if>
+            <if test="param.hardwareVersion != null and param.hardwareVersion != ''" >
+                and a.hardware_version = #{param.hardwareVersion,jdbcType=VARCHAR}
+            </if>
+            <if test="param.softwareVersion != null and param.softwareVersion != ''" >
+                and a.software_version = #{param.softwareVersion,jdbcType=VARCHAR}
+            </if>
+            <if test="versionCode != null and versionCode != ''" >
+                and a.version_code like '%${versionCode}%'
+            </if>
+            <if test="param.path != null and param.path != ''" >
+                and a.path = #{param.path,jdbcType=VARCHAR}
+            </if>
+            <if test="param.remark != null and param.remark != ''" >
+                and a.remark = #{param.remark,jdbcType=VARCHAR}
+            </if>
+            <if test="param.updatePersonnel != null and param.updatePersonnel != ''" >
+                and a.update_personnel = #{param.updatePersonnel,jdbcType=VARCHAR}
+            </if>
+            <if test="startTime !=null and startTime != ''">
+            	and a.create_time &gt; #{startTime}
+            </if>
+            <if test="endTime !=null and endTime != ''">
+            	and a.create_time &lt; #{endTime}
+            </if>
+        </where>
+        order by a.id desc
+    </sql>
+    
+     <select id="getEquipmentList" resultType="java.util.Map" >
+        <!-- WARNING -  huzi 2018-05-15  分页查询 -->
+        select 
+        id,
+        name,
+        hardware_version as hardwareVersion,
+        software_version as softwareVersion,
+        version_code as versionCode,
+        path,
+        remark,
+        update_personnel as updatePersonnel,
+        create_time as createTime 
+        from sys_equipment_update a
+        <where >
+            <if test="param.id != null " >
+                and a.id = #{param.id,jdbcType=BIGINT}
+            </if>
+            <if test="param.name != null and param.name != ''" >
+                and a.name = #{param.name,jdbcType=VARCHAR}
+            </if>
+            <if test="param.hardwareVersion != null and param.hardwareVersion != ''" >
+                and a.hardware_version = #{param.hardwareVersion,jdbcType=VARCHAR}
+            </if>
+            <if test="param.softwareVersion != null and param.softwareVersion != ''" >
+                and a.software_version = #{param.softwareVersion,jdbcType=VARCHAR}
+            </if>
+            <if test="versionCode != null and versionCode != ''" >
+                and a.version_code like '%${versionCode}%'
+            </if>
+            <if test="param.path != null and param.path != ''" >
+                and a.path = #{param.path,jdbcType=VARCHAR}
+            </if>
+            <if test="param.remark != null and param.remark != ''" >
+                and a.remark = #{param.remark,jdbcType=VARCHAR}
+            </if>
+            <if test="param.updatePersonnel != null and param.updatePersonnel != ''" >
+                and a.update_personnel = #{param.updatePersonnel,jdbcType=VARCHAR}
+            </if>
+            <if test="startTime !=null and startTime != ''">
+            	and a.create_time &gt; #{startTime}
+            </if>
+            <if test="endTime !=null and endTime != ''">
+            	and a.create_time &lt; #{endTime}
+            </if>
+        </where>
+        order by a.hardware_version desc, a.create_time desc limit #{offset}, #{pageSize}
+    </select>
+    
+    <select id="getEquipmentCount" resultType="java.lang.Integer" >
+        <!-- WARNING -  huzi 2018-05-15  分页查询总条数 -->
+        select count(1) from sys_equipment_update a
+        <where >
+            <if test="param.id != null " >
+                and a.id = #{param.id,jdbcType=BIGINT}
+            </if>
+            <if test="param.name != null and param.name != ''" >
+                and a.name = #{param.name,jdbcType=VARCHAR}
+            </if>
+            <if test="param.hardwareVersion != null and param.hardwareVersion != ''" >
+                and a.hardware_version = #{param.hardwareVersion,jdbcType=VARCHAR}
+            </if>
+            <if test="param.softwareVersion != null and param.softwareVersion != ''" >
+                and a.software_version = #{param.softwareVersion,jdbcType=VARCHAR}
+            </if>
+            <if test="versionCode != null and versionCode != ''" >
+                and a.version_code like '%${versionCode}%'
+            </if>
+            <if test="param.path != null and param.path != ''" >
+                and a.path = #{param.path,jdbcType=VARCHAR}
+            </if>
+            <if test="param.remark != null and param.remark != ''" >
+                and a.remark = #{param.remark,jdbcType=VARCHAR}
+            </if>
+            <if test="param.updatePersonnel != null and param.updatePersonnel != ''" >
+                and a.update_personnel = #{param.updatePersonnel,jdbcType=VARCHAR}
+            </if>
+            <if test="startTime !=null and startTime != ''">
+            	and a.create_time &gt; #{startTime}
+            </if>
+            <if test="endTime !=null and endTime != ''">
+            	and a.create_time &lt; #{endTime}
+            </if>
+        </where> 
+    </select>
+    
+    <select id="findByPage" resultMap="BaseResultMap" >
+        <!-- WARNING -  huzi 2018-05-15  分页查询 -->
+        select temp.* from (
+        <include refid="findByPageSql" />
+        ) temp limit #{offset}, #{pageSize}
+    </select>
+    
+    <select id="findByPageCount" resultType="java.lang.Integer" >
+        <!-- WARNING -  huzi 2018-05-15  分页查询总条数 -->
+        select count(1) from (
+        <include refid="findByPageSql" />
+        ) temp 
+    </select>
+    
+    <select id="findById" resultMap="BaseResultMap" parameterType="java.lang.Long" >
+        <!--  huzi 2018-05-15 根据ID查询 -->
+        select 
+        <include refid="Base_Column_List" />
+        from sys_equipment_update
+        where id = #{id,jdbcType=BIGINT}
+    </select>
+    
+    <select id="load" resultMap="BaseResultMap" >
+        <!-- WARNING -  huzi 2018-05-15  根据多个ID查询 -->
+        select 
+        <include refid="Base_Column_List" />
+        from sys_equipment_update where id in 
+        <foreach collection="ids" item="item" open="(" separator="," close=")" >
+            #{item}
+        </foreach>
+    </select>
+    
+    <select id="all" resultMap="BaseResultMap" >
+        <!-- WARNING -  huzi 2018-05-15  查询所有 -->
+        select 
+        <include refid="Base_Column_List" />
+        from sys_equipment_update
+    </select>
+    
+    <select id="count" resultType="java.lang.Integer" >
+        <!-- WARNING -  huzi 2018-05-15 查询总条数 -->
+        select count(1) from sys_equipment_update
+    </select>
+    
+    <update id="update" parameterType="com.kapphk.pms.bean.BeanEquipmentUpdate" >
+        <!--  huzi 2018-05-15 更新数据 -->
+        update sys_equipment_update
+        <set >
+            <if test="id != null " >
+                id = #{id,jdbcType=BIGINT},
+            </if>
+            <if test="name != null" >
+                name = #{name,jdbcType=VARCHAR},
+            </if>
+            <if test="hardwareVersion != null" >
+                hardware_version = #{hardwareVersion,jdbcType=VARCHAR},
+            </if>
+            <if test="softwareVersion != null" >
+                software_version = #{softwareVersion,jdbcType=VARCHAR},
+            </if>
+            <if test="versionCode != null" >
+                version_code = #{versionCode,jdbcType=VARCHAR},
+            </if>
+            <if test="path != null" >
+                path = #{path,jdbcType=VARCHAR},
+            </if>
+            <if test="remark != null" >
+                remark = #{remark,jdbcType=VARCHAR},
+            </if>
+            <if test="updatePersonnel != null" >
+                update_personnel = #{updatePersonnel,jdbcType=VARCHAR},
+            </if>
+            <if test="createTime != null" >
+                create_time = #{createTime,jdbcType=VARCHAR},
+            </if>
+        </set>
+        where id = #{id,jdbcType=BIGINT}
+    </update>
+    
+    <insert id="insert" parameterType="com.kapphk.pms.bean.BeanEquipmentUpdate" useGeneratedKeys="true" keyProperty="id" >
+        <!--  huzi 2018-05-15 添加数据 -->
+        insert into sys_equipment_update
+        <trim prefix="(" suffix=")" suffixOverrides="," >
+            <if test="name != null" >
+                name,
+            </if>
+            <if test="hardwareVersion != null" >
+                hardware_version,
+            </if>
+            <if test="softwareVersion != null" >
+                software_version,
+            </if>
+            <if test="versionCode != null" >
+                version_code,
+            </if>
+            <if test="path != null" >
+                path,
+            </if>
+            <if test="remark != null" >
+                remark,
+            </if>
+            <if test="updatePersonnel != null" >
+                update_personnel,
+            </if>
+            <if test="createTime != null" >
+                create_time,
+            </if>
+        </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides="," >
+            <if test="name != null" >
+                #{name,jdbcType=VARCHAR},
+            </if>
+            <if test="hardwareVersion != null" >
+                #{hardwareVersion,jdbcType=VARCHAR},
+            </if>
+            <if test="softwareVersion != null" >
+                #{softwareVersion,jdbcType=VARCHAR},
+            </if>
+            <if test="versionCode != null" >
+                #{versionCode,jdbcType=VARCHAR},
+            </if>
+            <if test="path != null" >
+                #{path,jdbcType=VARCHAR},
+            </if>
+            <if test="remark != null" >
+                #{remark,jdbcType=VARCHAR},
+            </if>
+            
+            <if test="updatePersonnel != null" >
+                #{updatePersonnel,jdbcType=VARCHAR},
+            </if>
+            <if test="createTime != null" >
+                #{createTime,jdbcType=VARCHAR},
+            </if>
+        </trim>
+    </insert>
+    
+    <insert id="inserts" parameterType="java.util.List" >
+        <!-- WARNING -  huzi 2018-05-15 添加多条数据 -->
+        insert into sys_equipment_update (name, hardwareVersion, softwareVersion, versionCode, path, remark, update_personnel, create_time)
+        values
+        <foreach collection="list" item="item" separator="," >
+            (#{item.name,jdbcType=VARCHAR},
+             #{item.hardwareVersion,jdbcType=VARCHAR}, 
+             #{item.softwareVersion,jdbcType=VARCHAR},
+             #{item.versionCode,jdbcType=VARCHAR},
+             #{item.path,jdbcType=VARCHAR}, 
+             #{item.remark,jdbcType=VARCHAR},
+             #{item.updatePersonnel,jdbcType=VARCHAR},
+             #{item.createTime,jdbcType=VARCHAR},	
+            )
+        </foreach>
+    </insert>
+    
+    <delete id="delete" parameterType="java.lang.Long" >
+        <!--  huzi 2018-05-15 删除数据 -->
+        delete from sys_equipment_update
+        where id = #{id,jdbcType=BIGINT}
+    </delete>
+    
+    <delete id="deletes" >
+        <!-- WARNING -  huzi 2018-05-15 删除多条数据 -->
+        delete from sys_equipment_update where id in 
+        <foreach collection="ids" item="item" open="(" separator="," close=")" >
+            #{item}
+        </foreach>
+    </delete>
+    
+    <delete id="deleteByEntity" >
+        <!-- WARNING -  huzi 2018-05-15 通过实体类中的条件删除数据 -->
+        delete from sys_equipment_update
+        <where >
+            <if test="param.id != null " >
+                and id = #{param.id,jdbcType=BIGINT}
+            </if>
+            <if test="param.name != null and param.name != ''" >
+                and name = #{param.name,jdbcType=VARCHAR}
+            </if>
+            <if test="param.hardwareVersion != null and param.hardwareVersion != ''" >
+                and hardware_version = #{param.hardwareVersion,jdbcType=VARCHAR}
+            </if>
+            <if test="param.softwareVersion != null and param.softwareVersion != ''" >
+                and software_version = #{param.softwareVersion,jdbcType=VARCHAR}
+            </if>
+            <if test="param.versionCode != null and param.versionCode != ''" >
+                and version_code = #{param.versionCode,jdbcType=VARCHAR}
+            </if>
+            <if test="param.path != null and param.path != ''" >
+                and path = #{param.path,jdbcType=VARCHAR}
+            </if>
+            <if test="param.remark != null and param.remark != ''" >
+                and remark = #{param.remark,jdbcType=VARCHAR}
+            </if>
+            <if test="param.updatePersonnel != null and param.updatePersonnel != ''" >
+                and update_personnel = #{param.updatePersonnel,jdbcType=VARCHAR}
+            </if>
+        </where>
+    </delete>
+    
+    <select id="findAll" resultMap="BaseResultMap" >
+        <!-- huzi 2018-05-15  通过实体中的条件查询所有 -->
+        select temp.* from (
+        <include refid="findByPageSql" />
+        ) temp 
+    </select>
+    
+    <!-- 
+    <select id="getEquipmentUpdate" resultType="java.util.Map">
+    SELECT 
+        name,
+        hardware_version as hardwareVersion,
+        software_version as softwareVersion,
+        version_code as versionCode,
+        path,
+        remark,
+        update_personnel as updatePersonnel
+    FROM sys_equipment_update ORDER BY create_time DESC LIMIT 0,1
+    </select>
+     -->
+    
+    <!-- huzi  2018年05月15日  根据硬件型号、软件型号、版本号 查询得出结果集，再从结果集中查询出最新版本数据   -->
+    <select id="findByHardwareAndSoftwar" resultMap="BaseResultMap" parameterType="java.util.Map" >
+       select 
+       		<include refid="Base_Column_List" /> 
+       from 
+       		sys_equipment_update 
+       where 
+       		version_code = (
+       			select max(version_code) 
+       			from   sys_equipment_update 
+       			where  hardware_version = #{hardwareVersion,jdbcType=VARCHAR} 
+       			and    software_version = #{softwareVersion,jdbcType=VARCHAR} 
+       		)
+    </select>
+    
+     <!-- huzi  2018年05月15日  根据 固件名称、硬件型号、软件型号、版本号  查询记录  -->
+    <select id="findByHsv" resultMap="BaseResultMap" parameterType="java.util.Map" >
+       select 
+       		<include refid="Base_Column_List" /> 
+       from 
+       		sys_equipment_update 
+       where 
+       		name =  #{name,jdbcType=VARCHAR} 
+       		and
+       		hardware_version = #{hardwareVersion,jdbcType=VARCHAR} 
+       		and
+       		software_version = #{softwareVersion,jdbcType=VARCHAR}
+       		and
+       		version_code = #{versionCode,jdbcType=VARCHAR}
+    </select>
+    
+    
+</mapper>

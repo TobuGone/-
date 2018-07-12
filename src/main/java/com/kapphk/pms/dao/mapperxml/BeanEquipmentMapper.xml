@@ -1,0 +1,311 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.kapphk.pms.dao.mapper.BeanEquipmentMapper" >
+    <resultMap id="BaseResultMap" type="com.kapphk.pms.bean.BeanEquipment" >
+        <!--  自动生成 2016年01月19日 表与实体类字段对应 -->
+        <id column="id" property="id" jdbcType="BIGINT" />
+        <result column="uid" property="uid" jdbcType="BIGINT" />
+        <result column="number" property="number" jdbcType="VARCHAR" />
+        <result column="voltage" property="voltage" jdbcType="VARCHAR" />
+        <result column="electric" property="electric" jdbcType="VARCHAR" />
+        <result column="output_power" property="outputPower" jdbcType="VARCHAR" />
+        <result column="pot_temperature" property="potTemperature" jdbcType="VARCHAR" />
+        <result column="room_temperature" property="roomTemperature" jdbcType="VARCHAR" />
+        <result column="status" property="status" jdbcType="VARCHAR" />
+        <result column="create_time" property="createTime" jdbcType="VARCHAR" />
+    </resultMap>
+    
+    <sql id="Base_Column_List" >
+        <!--  自动生成 2016年01月19日 表字段名称 -->
+        id, uid, number, voltage, electric, output_power, pot_temperature, room_temperature, 
+        status, create_time
+    </sql>
+    
+    <sql id="findByPageSql" >
+        <!-- WARNING -  自动生成 2016-01-19  分页查询SQL -->
+        select a.* from sys_equipment a
+        <where >
+            <if test="param.id != null " >
+                and a.id = #{param.id,jdbcType=BIGINT}
+            </if>
+            <if test="param.uid != null " >
+                and a.uid = #{param.uid,jdbcType=BIGINT}
+            </if>
+            <if test="param.number != null and param.number != ''" >
+                and a.number like '%${param.number}%' 
+            </if>
+            <if test="param.voltage != null and param.voltage != ''" >
+                and a.voltage like '%${param.voltage}%' 
+            </if>
+            <if test="param.electric != null and param.electric != ''" >
+                and a.electric like '%${param.electric}%' 
+            </if>
+            <if test="param.outputPower != null and param.outputPower != ''" >
+                and a.output_power like '%${param.outputPower}%' 
+            </if>
+            <if test="param.potTemperature != null and param.potTemperature != ''" >
+                and a.pot_temperature like '%${param.potTemperature}%' 
+            </if>
+            <if test="param.roomTemperature != null and param.roomTemperature != ''" >
+                and a.room_temperature like '%${param.roomTemperature}%' 
+            </if>
+            <if test="param.status != null and param.status != ''" >
+                and a.status like '%${param.status}%' 
+            </if>
+        </where>
+        order by a.id desc
+    </sql>
+    
+    <select id="findByPage" resultMap="BaseResultMap" >
+        <!-- WARNING -  自动生成 2016-01-19  分页查询 -->
+        select temp.* from (
+        <include refid="findByPageSql" />
+        ) temp limit #{offset}, #{pageSize}
+    </select>
+    
+    <select id="findByPageCount" resultType="java.lang.Integer" >
+        <!-- WARNING -  自动生成 2016-01-19  分页查询总条数 -->
+        select count(1) from (
+        <include refid="findByPageSql" />
+        ) temp 
+    </select>
+    
+    <select id="findById" resultMap="BaseResultMap" parameterType="java.lang.Long" >
+        <!--  自动生成 2016年01月19日 根据ID查询 -->
+        select 
+        <include refid="Base_Column_List" />
+        from sys_equipment
+        where id = #{id,jdbcType=BIGINT}
+    </select>
+    
+    <select id="load" resultMap="BaseResultMap" >
+        <!-- WARNING -  自动生成 2016-01-19  根据多个ID查询 -->
+        select 
+        <include refid="Base_Column_List" />
+        from sys_equipment where id in 
+        <foreach collection="ids" item="item" open="(" separator="," close=")" >
+            #{item}
+        </foreach>
+    </select>
+    
+    <select id="all" resultMap="BaseResultMap" >
+        <!-- WARNING -  自动生成 2016-01-19  查询所有 -->
+        select 
+        <include refid="Base_Column_List" />
+        from sys_equipment
+    </select>
+    
+    <select id="count" resultType="java.lang.Integer" >
+        <!-- WARNING -  自动生成 2016-01-19 查询总条数 -->
+        select count(1) from sys_equipment
+    </select>
+    
+    <update id="update" parameterType="com.kapphk.pms.bean.BeanEquipment" >
+        <!--  自动生成 2016年01月19日 更新数据 -->
+        update sys_equipment
+        <set >
+            <if test="uid != null" >
+                uid = #{uid,jdbcType=BIGINT},
+            </if>
+            <if test="number != null" >
+                number = #{number,jdbcType=VARCHAR},
+            </if>
+            <if test="voltage != null" >
+                voltage = #{voltage,jdbcType=VARCHAR},
+            </if>
+            <if test="electric != null" >
+                electric = #{electric,jdbcType=VARCHAR},
+            </if>
+            <if test="outputPower != null" >
+                output_power = #{outputPower,jdbcType=VARCHAR},
+            </if>
+            <if test="potTemperature != null" >
+                pot_temperature = #{potTemperature,jdbcType=VARCHAR},
+            </if>
+            <if test="roomTemperature != null" >
+                room_temperature = #{roomTemperature,jdbcType=VARCHAR},
+            </if>
+            <if test="status != null" >
+                status = #{status,jdbcType=VARCHAR},
+            </if>
+            <if test="createTime != null" >
+                create_time = #{createTime,jdbcType=VARCHAR},
+            </if>
+        </set>
+        where id = #{id,jdbcType=BIGINT}
+    </update>
+    
+    <insert id="insert" parameterType="com.kapphk.pms.bean.BeanEquipment" useGeneratedKeys="true" keyProperty="id" >
+        <!--  自动生成 2016年01月19日 添加数据 -->
+        insert into sys_equipment
+        <trim prefix="(" suffix=")" suffixOverrides="," >
+            <if test="uid != null" >
+                uid,
+            </if>
+            <if test="number != null" >
+                number,
+            </if>
+            <if test="voltage != null" >
+                voltage,
+            </if>
+            <if test="electric != null" >
+                electric,
+            </if>
+            <if test="outputPower != null" >
+                output_power,
+            </if>
+            <if test="potTemperature != null" >
+                pot_temperature,
+            </if>
+            <if test="roomTemperature != null" >
+                room_temperature,
+            </if>
+            <if test="status != null" >
+                status,
+            </if>
+            <if test="createTime != null" >
+                create_time,
+            </if>
+        </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides="," >
+            <if test="uid != null" >
+                #{uid,jdbcType=BIGINT},
+            </if>
+            <if test="number != null" >
+                #{number,jdbcType=VARCHAR},
+            </if>
+            <if test="voltage != null" >
+                #{voltage,jdbcType=VARCHAR},
+            </if>
+            <if test="electric != null" >
+                #{electric,jdbcType=VARCHAR},
+            </if>
+            <if test="outputPower != null" >
+                #{outputPower,jdbcType=VARCHAR},
+            </if>
+            <if test="potTemperature != null" >
+                #{potTemperature,jdbcType=VARCHAR},
+            </if>
+            <if test="roomTemperature != null" >
+                #{roomTemperature,jdbcType=VARCHAR},
+            </if>
+            <if test="status != null" >
+                #{status,jdbcType=VARCHAR},
+            </if>
+            <if test="createTime != null" >
+                #{createTime,jdbcType=VARCHAR},
+            </if>
+        </trim>
+    </insert>
+    
+    <insert id="inserts" parameterType="java.util.List" >
+        <!-- WARNING -  自动生成 2016-01-19 添加多条数据 -->
+        insert into sys_equipment (uid, number, voltage, electric, output_power, pot_temperature, room_temperature, status, create_time)
+        values
+        <foreach collection="list" item="item" separator="," >
+            (#{item.uid,jdbcType=BIGINT}, #{item.number,jdbcType=VARCHAR}, #{item.voltage,jdbcType=VARCHAR}, #{item.electric,jdbcType=VARCHAR}, #{item.outputPower,jdbcType=VARCHAR}, #{item.potTemperature,jdbcType=VARCHAR}, #{item.roomTemperature,jdbcType=VARCHAR}, #{item.status,jdbcType=VARCHAR}, #{item.createTime,jdbcType=VARCHAR})
+        </foreach>
+    </insert>
+    
+    <delete id="delete" parameterType="java.lang.Long" >
+        <!--  自动生成 2016年01月19日 删除数据 -->
+        delete from sys_equipment
+        where id = #{id,jdbcType=BIGINT}
+    </delete>
+    
+    <delete id="deletes" >
+        <!-- WARNING -  自动生成 2016-01-19 删除多条数据 -->
+        delete from sys_equipment where id in 
+        <foreach collection="ids" item="item" open="(" separator="," close=")" >
+            #{item}
+        </foreach>
+    </delete>
+    
+    <delete id="deleteByEntity" >
+        <!-- WARNING -  自动生成 2016-01-19 通过实体类中的条件删除数据 -->
+        delete from sys_equipment
+        <where >
+            <if test="param.id != null " >
+                and id = #{param.id,jdbcType=BIGINT}
+            </if>
+            <if test="param.uid != null " >
+                and uid = #{param.uid,jdbcType=BIGINT}
+            </if>
+            <if test="param.number != null and param.number != ''" >
+                and number = #{param.number,jdbcType=VARCHAR}
+            </if>
+            <if test="param.voltage != null and param.voltage != ''" >
+                and voltage = #{param.voltage,jdbcType=VARCHAR}
+            </if>
+            <if test="param.electric != null and param.electric != ''" >
+                and electric = #{param.electric,jdbcType=VARCHAR}
+            </if>
+            <if test="param.outputPower != null and param.outputPower != ''" >
+                and output_power = #{param.outputPower,jdbcType=VARCHAR}
+            </if>
+            <if test="param.potTemperature != null and param.potTemperature != ''" >
+                and pot_temperature = #{param.potTemperature,jdbcType=VARCHAR}
+            </if>
+            <if test="param.roomTemperature != null and param.roomTemperature != ''" >
+                and room_temperature = #{param.roomTemperature,jdbcType=VARCHAR}
+            </if>
+            <if test="param.status != null and param.status != ''" >
+                and status = #{param.status,jdbcType=VARCHAR}
+            </if>
+        </where>
+    </delete>
+    
+    <select id="findAll" resultMap="BaseResultMap" >
+        <!-- WARNING -  自动生成 2016-01-19  通过实体中的条件查询所有 -->
+        select temp.* from (
+        <include refid="findByPageSql" />
+        ) temp 
+    </select>
+    
+      <select id="findByCondition"   resultType="java.util.Map"  >
+        select  id,number from sys_equipment
+        <where >
+            <if test="param.id != null " >
+                and id = #{param.id,jdbcType=BIGINT}
+            </if>
+            <if test="param.uid != null " >
+                and uid = #{param.uid,jdbcType=BIGINT}
+            </if>
+            <if test="param.number != null and param.number != ''" >
+                and number = #{param.number,jdbcType=VARCHAR}
+            </if>
+            <if test="param.voltage != null and param.voltage != ''" >
+                and voltage = #{param.voltage,jdbcType=VARCHAR}
+            </if>
+            <if test="param.electric != null and param.electric != ''" >
+                and electric = #{param.electric,jdbcType=VARCHAR}
+            </if>
+            <if test="param.outputPower != null and param.outputPower != ''" >
+                and output_power = #{param.outputPower,jdbcType=VARCHAR}
+            </if>
+            <if test="param.potTemperature != null and param.potTemperature != ''" >
+                and pot_temperature = #{param.potTemperature,jdbcType=VARCHAR}
+            </if>
+            <if test="param.roomTemperature != null and param.roomTemperature != ''" >
+                and room_temperature = #{param.roomTemperature,jdbcType=VARCHAR}
+            </if>
+            <if test="param.status != null and param.status != ''" >
+                and status = #{param.status,jdbcType=VARCHAR}
+            </if>
+        </where>
+    </select>
+    
+    <!-- huzi  2018年06月26日  根据 用户id、设备名  查询记录  -->
+    <select id="findByUidAndNumber" resultMap="BaseResultMap" parameterType="java.util.Map" >
+       select 
+       		<include refid="Base_Column_List" /> 
+       from 
+       		sys_equipment
+       where 
+       		uid = #{userId,jdbcType=BIGINT} 
+       		and
+       		number = #{number,jdbcType=VARCHAR} 
+    </select>
+    
+    
+</mapper>

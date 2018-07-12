@@ -1,0 +1,237 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.kapphk.pms.dao.mapper.BeanResourceMapper" >
+    <resultMap id="BaseResultMap" type="com.kapphk.pms.bean.BeanResource" >
+        <!--  自动生成 2016年01月06日 表与实体类字段对应 -->
+        <id column="id" property="id" jdbcType="INTEGER" />
+        <result column="resource_name" property="resourceName" jdbcType="VARCHAR" />
+        <result column="url" property="url" jdbcType="VARCHAR" />
+        <result column="parent_id" property="parentId" jdbcType="INTEGER" />
+        <result column="type" property="type" jdbcType="SMALLINT" />
+        <result column="remark" property="remark" jdbcType="VARCHAR" />
+    </resultMap>
+    
+    
+     <!-- 根据用户查询  用户拥有的菜单资源 -->
+      <select id="findUserResourcesByUserId"  resultMap="BaseResultMap">
+            select * from sys_resource   where type = 1
+            <if test="userId != null">
+                 and id in
+                    ( select  distinct( resource_id ) from sys_role_resource where role_id  in 
+                       (select distinct (role_id) from sys_user_role ur , sys_role r
+                           <where>
+                                ur.role_id = r.id and r.status = 1   and  user_id = #{userId,jdbcType=BIGINT}
+                           </where>
+                        )
+                     )
+              </if>
+      </select> 
+    
+     <!--   根据用户查询  用户拥有的菜单资源ID -->
+  	<select id="findUserResourceIdsByUserId" resultType="java.util.Map">
+		select id from sys_resource  where type = 1 and  id in
+		( select distinct( menu_id) from
+		sys_role_resource where role_id in
+		(select distinct (role_id) from
+		sys_user_role 
+			            <if test="userId != null">
+			              where user_id = #{userId,jdbcType=BIGINT}
+			             </if>
+	               )
+	            )
+    </select>
+    
+    
+    
+    <sql id="Base_Column_List" >
+        <!--  自动生成 2016年01月06日 表字段名称 -->
+        id, resource_name, url, parent_id, type, remark
+    </sql>
+    
+    <sql id="findByPageSql" >
+        <!-- WARNING -  自动生成 2016-01-06  分页查询SQL -->
+        select a.* from sys_resource a
+        <where >
+            <if test="param.id != null " >
+                and a.id = #{param.id,jdbcType=INTEGER}
+            </if>
+            <if test="param.resourceName != null and param.resourceName != ''" >
+                and a.resource_name = #{param.resourceName,jdbcType=VARCHAR}
+            </if>
+            <if test="param.url != null and param.url != ''" >
+                and a.url = #{param.url,jdbcType=VARCHAR}
+            </if>
+            <if test="param.parentId != null " >
+                and a.parent_id = #{param.parentId,jdbcType=INTEGER}
+            </if>
+            <if test="param.type != null " >
+                and a.type = #{param.type,jdbcType=SMALLINT}
+            </if>
+            <if test="param.remark != null and param.remark != ''" >
+                and a.remark = #{param.remark,jdbcType=VARCHAR}
+            </if>
+        </where>
+        order by a.id desc
+    </sql>
+    
+    <select id="findByPage" resultMap="BaseResultMap" >
+        <!-- WARNING -  自动生成 2016-01-06  分页查询 -->
+        select temp.* from (
+        <include refid="findByPageSql" />
+        ) temp limit #{offset}, #{pageSize}
+    </select>
+    
+    <select id="findByPageCount" resultType="java.lang.Integer" >
+        <!-- WARNING -  自动生成 2016-01-06  分页查询总条数 -->
+        select count(1) from (
+        <include refid="findByPageSql" />
+        ) temp 
+    </select>
+    
+    <select id="findById" resultMap="BaseResultMap" parameterType="java.lang.Integer" >
+        <!--  自动生成 2016年01月06日 根据ID查询 -->
+        select 
+        <include refid="Base_Column_List" />
+        from sys_resource
+        where id = #{id,jdbcType=INTEGER}
+    </select>
+    
+    <select id="load" resultMap="BaseResultMap" >
+        <!-- WARNING -  自动生成 2016-01-06  根据多个ID查询 -->
+        select 
+        <include refid="Base_Column_List" />
+        from sys_resource where id in 
+        <foreach collection="ids" item="item" open="(" separator="," close=")" >
+            #{item}
+        </foreach>
+    </select>
+    
+    <select id="all" resultMap="BaseResultMap" >
+        <!-- WARNING -  自动生成 2016-01-06  查询所有 -->
+        select 
+        <include refid="Base_Column_List" />
+        from sys_resource
+    </select>
+    
+    <select id="count" resultType="java.lang.Integer" >
+        <!-- WARNING -  自动生成 2016-01-06 查询总条数 -->
+        select count(1) from sys_resource
+    </select>
+    
+    <update id="update" parameterType="com.kapphk.pms.bean.BeanResource" >
+        <!--  自动生成 2016年01月06日 更新数据 -->
+        update sys_resource
+        <set >
+            <if test="resourceName != null" >
+                resource_name = #{resourceName,jdbcType=VARCHAR},
+            </if>
+            <if test="url != null" >
+                url = #{url,jdbcType=VARCHAR},
+            </if>
+            <if test="parentId != null" >
+                parent_id = #{parentId,jdbcType=INTEGER},
+            </if>
+            <if test="type != null" >
+                type = #{type,jdbcType=SMALLINT},
+            </if>
+            <if test="remark != null" >
+                remark = #{remark,jdbcType=VARCHAR},
+            </if>
+        </set>
+        where id = #{id,jdbcType=INTEGER}
+    </update>
+    
+    <insert id="insert" parameterType="com.kapphk.pms.bean.BeanResource" useGeneratedKeys="true" keyProperty="id" >
+        <!--  自动生成 2016年01月06日 添加数据 -->
+        insert into sys_resource
+        <trim prefix="(" suffix=")" suffixOverrides="," >
+            <if test="resourceName != null" >
+                resource_name,
+            </if>
+            <if test="url != null" >
+                url,
+            </if>
+            <if test="parentId != null" >
+                parent_id,
+            </if>
+            <if test="type != null" >
+                type,
+            </if>
+            <if test="remark != null" >
+                remark,
+            </if>
+        </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides="," >
+            <if test="resourceName != null" >
+                #{resourceName,jdbcType=VARCHAR},
+            </if>
+            <if test="url != null" >
+                #{url,jdbcType=VARCHAR},
+            </if>
+            <if test="parentId != null" >
+                #{parentId,jdbcType=INTEGER},
+            </if>
+            <if test="type != null" >
+                #{type,jdbcType=SMALLINT},
+            </if>
+            <if test="remark != null" >
+                #{remark,jdbcType=VARCHAR},
+            </if>
+        </trim>
+    </insert>
+    
+    <insert id="inserts" parameterType="java.util.List" >
+        <!-- WARNING -  自动生成 2016-01-06 添加多条数据 -->
+        insert into sys_resource (resource_name, url, parent_id, type, remark)
+        values
+        <foreach collection="list" item="item" separator="," >
+            (#{item.resourceName,jdbcType=VARCHAR}, #{item.url,jdbcType=VARCHAR}, #{item.parentId,jdbcType=INTEGER}, #{item.type,jdbcType=SMALLINT}, #{item.remark,jdbcType=VARCHAR})
+        </foreach>
+    </insert>
+    
+    <delete id="delete" parameterType="java.lang.Integer" >
+        <!--  自动生成 2016年01月06日 删除数据 -->
+        delete from sys_resource
+        where id = #{id,jdbcType=INTEGER}
+    </delete>
+    
+    <delete id="deletes" >
+        <!-- WARNING -  自动生成 2016-01-06 删除多条数据 -->
+        delete from sys_resource where id in 
+        <foreach collection="ids" item="item" open="(" separator="," close=")" >
+            #{item}
+        </foreach>
+    </delete>
+    
+    <delete id="deleteByEntity" >
+        <!-- WARNING -  自动生成 2016-01-06 通过实体类中的条件删除数据 -->
+        delete from sys_resource
+        <where >
+            <if test="param.id != null " >
+                and id = #{param.id,jdbcType=INTEGER}
+            </if>
+            <if test="param.resourceName != null and param.resourceName != ''" >
+                and resource_name = #{param.resourceName,jdbcType=VARCHAR}
+            </if>
+            <if test="param.url != null and param.url != ''" >
+                and url = #{param.url,jdbcType=VARCHAR}
+            </if>
+            <if test="param.parentId != null " >
+                and parent_id = #{param.parentId,jdbcType=INTEGER}
+            </if>
+            <if test="param.type != null " >
+                and type = #{param.type,jdbcType=SMALLINT}
+            </if>
+            <if test="param.remark != null and param.remark != ''" >
+                and remark = #{param.remark,jdbcType=VARCHAR}
+            </if>
+        </where>
+    </delete>
+    
+    <select id="findAll" resultMap="BaseResultMap" >
+        <!-- WARNING -  自动生成 2016-01-06  通过实体中的条件查询所有 -->
+        select temp.* from (
+        <include refid="findByPageSql" />
+        ) temp 
+    </select>
+</mapper>

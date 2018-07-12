@@ -1,0 +1,261 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.kapphk.pms.dao.mapper.BeanMenuBookCommentMapper" >
+    <resultMap id="BaseResultMap" type="com.kapphk.pms.bean.BeanMenuBookComment" >
+        <!--  自动生成 2016年09月06日 表与实体类字段对应 -->
+        <id column="id" property="id" jdbcType="BIGINT" />
+        <result column="user_id" property="userId" jdbcType="BIGINT" />
+        <result column="menu_book_id" property="menuBookId" jdbcType="BIGINT" />
+        <result column="content" property="content" jdbcType="VARCHAR" />
+        <result column="is_show" property="isShow" jdbcType="INTEGER" />
+        <result column="create_time" property="createTime" jdbcType="VARCHAR" />
+    </resultMap>
+    
+    <!-- 评论列表总数  zoneyu 16-9-6 -->
+    <select id="getListCount" resultType="java.lang.Integer">
+    	SELECT count(1)  
+		FROM sys_menu_book_comment AS smbc 
+		INNER JOIN sys_menu_book AS smb ON smbc.menu_book_id = smb.id 
+		INNER JOIN sys_user AS su ON smbc.user_id = su.id 
+		<where>
+			<if test="param.isShow != null">
+				and smbc.is_show = #{param.isShow}
+			</if>
+			<if test="name != null and name != ''">
+				and smb.name like '%${name}%'
+			</if>
+		</where>
+    </select>
+    
+    <!-- 评论列表集合  zoneyu 16-9-6 -->
+    <select id="getList" resultType="java.util.Map">
+    	SELECT smbc.id,smbc.content,smbc.create_time AS createTime,smbc.is_show as isShow,smb.name,
+		su.user_name AS userName,su.nick_name AS nickName 
+		FROM sys_menu_book_comment AS smbc 
+		INNER JOIN sys_menu_book AS smb ON smbc.menu_book_id = smb.id 
+		INNER JOIN sys_user AS su ON smbc.user_id = su.id 
+		<where>
+			<if test="param.isShow != null">
+				and smbc.is_show = #{param.isShow}
+			</if>
+			<if test="name != null and name != ''">
+				and smb.name like '%${name}%'
+			</if>
+		</where>
+		order by smbc.id desc limit #{page},#{rows}
+    </select>
+    
+    <select id="findByCondition" resultType="java.util.Map">
+        select c.id , u.nick_name as userNickName ,u.logo_path as userLogoPath, c.content, c.create_time
+        from sys_menu_book_comment  c
+        left join sys_user u on c.user_id = u.id 
+          <where >
+          	c.is_show = 1 
+            <if test="param.id != null " >
+                and c.id = #{param.id,jdbcType=BIGINT}
+            </if>
+            <if test="param.userId != null " >
+                and c.user_id = #{param.userId,jdbcType=BIGINT}
+            </if>
+            <if test="param.menuBookId != null " >
+                and c.menu_book_id = #{param.menuBookId,jdbcType=BIGINT}
+            </if>
+            <if test="param.content != null and param.content != ''" >
+                and c.content = #{param.content,jdbcType=VARCHAR}
+            </if>
+        </where>
+    </select>
+    
+    <sql id="Base_Column_List" >
+        <!--  自动生成 2016年09月06日 表字段名称 -->
+        id, user_id, menu_book_id, content, is_show, create_time
+    </sql>
+    
+    <sql id="findByPageSql" >
+        <!-- WARNING -  自动生成 2016-09-06  分页查询SQL -->
+        select a.* from sys_menu_book_comment a
+        <where >
+            <if test="param.id != null " >
+                and a.id = #{param.id,jdbcType=BIGINT}
+            </if>
+            <if test="param.userId != null " >
+                and a.user_id = #{param.userId,jdbcType=BIGINT}
+            </if>
+            <if test="param.menuBookId != null " >
+                and a.menu_book_id = #{param.menuBookId,jdbcType=BIGINT}
+            </if>
+            <if test="param.content != null and param.content != ''" >
+                and a.content = #{param.content,jdbcType=VARCHAR}
+            </if>
+            <if test="param.isShow != null " >
+                and a.is_show = #{param.isShow,jdbcType=INTEGER}
+            </if>
+        </where>
+        order by a.id desc
+    </sql>
+    
+    <select id="findByPage" resultMap="BaseResultMap" >
+        <!-- WARNING -  自动生成 2016-09-06  分页查询 -->
+        select temp.* from (
+        <include refid="findByPageSql" />
+        ) temp limit #{offset}, #{pageSize}
+    </select>
+    
+    <select id="findByPageCount" resultType="java.lang.Integer" >
+        <!-- WARNING -  自动生成 2016-09-06  分页查询总条数 -->
+        select count(1) from (
+        <include refid="findByPageSql" />
+        ) temp 
+    </select>
+    
+    <select id="findById" resultMap="BaseResultMap" parameterType="java.lang.Long" >
+        <!--  自动生成 2016年09月06日 根据ID查询 -->
+        select 
+        <include refid="Base_Column_List" />
+        from sys_menu_book_comment
+        where id = #{id,jdbcType=BIGINT}
+    </select>
+    
+    <select id="load" resultMap="BaseResultMap" >
+        <!-- WARNING -  自动生成 2016-09-06  根据多个ID查询 -->
+        select 
+        <include refid="Base_Column_List" />
+        from sys_menu_book_comment where id in 
+        <foreach collection="ids" item="item" open="(" separator="," close=")" >
+            #{item}
+        </foreach>
+    </select>
+    
+    <select id="all" resultMap="BaseResultMap" >
+        <!-- WARNING -  自动生成 2016-09-06  查询所有 -->
+        select 
+        <include refid="Base_Column_List" />
+        from sys_menu_book_comment
+    </select>
+    
+    <select id="count" resultType="java.lang.Integer" >
+        <!-- WARNING -  自动生成 2016-09-06 查询总条数 -->
+        select count(1) from sys_menu_book_comment
+    </select>
+    
+    <update id="update" parameterType="com.kapphk.pms.bean.BeanMenuBookComment" >
+        <!--  自动生成 2016年09月06日 更新数据 -->
+        update sys_menu_book_comment
+        <set >
+            <if test="userId != null" >
+                user_id = #{userId,jdbcType=BIGINT},
+            </if>
+            <if test="menuBookId != null" >
+                menu_book_id = #{menuBookId,jdbcType=BIGINT},
+            </if>
+            <if test="content != null" >
+                content = #{content,jdbcType=VARCHAR},
+            </if>
+            <if test="isShow != null" >
+                is_show = #{isShow,jdbcType=INTEGER},
+            </if>
+            <if test="createTime != null" >
+                create_time = #{createTime,jdbcType=VARCHAR},
+            </if>
+        </set>
+        where id = #{id,jdbcType=BIGINT}
+    </update>
+    
+    <insert id="insert" parameterType="com.kapphk.pms.bean.BeanMenuBookComment" useGeneratedKeys="true" keyProperty="id" >
+        <!--  自动生成 2016年09月06日 添加数据 -->
+        insert into sys_menu_book_comment
+        <trim prefix="(" suffix=")" suffixOverrides="," >
+            <if test="userId != null" >
+                user_id,
+            </if>
+            <if test="menuBookId != null" >
+                menu_book_id,
+            </if>
+            <if test="content != null" >
+                content,
+            </if>
+            <if test="isShow != null" >
+                is_show,
+            </if>
+            <if test="createTime != null" >
+                create_time,
+            </if>
+        </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides="," >
+            <if test="userId != null" >
+                #{userId,jdbcType=BIGINT},
+            </if>
+            <if test="menuBookId != null" >
+                #{menuBookId,jdbcType=BIGINT},
+            </if>
+            <if test="content != null" >
+                #{content,jdbcType=VARCHAR},
+            </if>
+            <if test="isShow != null" >
+                #{isShow,jdbcType=INTEGER},
+            </if>
+            <if test="createTime != null" >
+                #{createTime,jdbcType=VARCHAR},
+            </if>
+        </trim>
+    </insert>
+    
+    <insert id="inserts" parameterType="java.util.List" >
+        <!-- WARNING -  自动生成 2016-09-06 添加多条数据 -->
+        insert into sys_menu_book_comment (user_id, menu_book_id, content, is_show, create_time)
+        values
+        <foreach collection="list" item="item" separator="," >
+            (#{item.userId,jdbcType=BIGINT}, #{item.menuBookId,jdbcType=BIGINT}, #{item.content,jdbcType=VARCHAR}, #{item.isShow,jdbcType=INTEGER}, #{item.createTime,jdbcType=VARCHAR})
+        </foreach>
+    </insert>
+    
+    <delete id="delete" parameterType="java.lang.Long" >
+        <!--  自动生成 2016年09月06日 删除数据 -->
+        delete from sys_menu_book_comment
+        where id = #{id,jdbcType=BIGINT}
+    </delete>
+    
+    <delete id="deletes" >
+        <!-- WARNING -  自动生成 2016-09-06 删除多条数据 -->
+        delete from sys_menu_book_comment where id in 
+        <foreach collection="ids" item="item" open="(" separator="," close=")" >
+            #{item}
+        </foreach>
+    </delete>
+    
+    <delete id="deleteByEntity" >
+        <!-- WARNING -  自动生成 2016-09-06 通过实体类中的条件删除数据 -->
+        delete from sys_menu_book_comment
+        <where >
+            <if test="param.id != null " >
+                and id = #{param.id,jdbcType=BIGINT}
+            </if>
+            <if test="param.userId != null " >
+                and user_id = #{param.userId,jdbcType=BIGINT}
+            </if>
+            <if test="param.menuBookId != null " >
+                and menu_book_id = #{param.menuBookId,jdbcType=BIGINT}
+            </if>
+            <if test="param.content != null and param.content != ''" >
+                and content = #{param.content,jdbcType=VARCHAR}
+            </if>
+            <if test="param.isShow != null " >
+                and is_show = #{param.isShow,jdbcType=INTEGER}
+            </if>
+        </where>
+    </delete>
+    
+    <select id="findAll" resultMap="BaseResultMap" >
+        <!-- WARNING -  自动生成 2016-09-06  通过实体中的条件查询所有 -->
+        select temp.* from (
+        <include refid="findByPageSql" />
+        ) temp 
+    </select>
+    
+    <select id="findEntityByCondition" resultMap="BaseResultMap" >
+        <!-- WARNING -  自动生成 2016-09-06  通过实体中的条件查询所有 -->
+        select temp.* from (
+        <include refid="findByPageSql" />
+        ) temp limit 0,1
+    </select>
+</mapper>

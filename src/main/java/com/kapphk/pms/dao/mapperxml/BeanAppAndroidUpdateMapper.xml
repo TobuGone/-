@@ -1,0 +1,271 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.kapphk.pms.dao.mapper.BeanAppAndroidUpdateMapper" >
+    <resultMap id="BaseResultMap" type="com.kapphk.pms.bean.BeanAppAndroidUpdate" >
+        <!-- huzi -  2018年01月31日 表与实体类字段对应 -->
+        <id column="id" property="id" jdbcType="BIGINT" />
+        <result column="name" property="name" jdbcType="VARCHAR" />
+        <result column="path" property="path" jdbcType="VARCHAR" />
+        <result column="version_name" property="versionName" jdbcType="VARCHAR"/>
+        <result column="version_code" property="versionCode" jdbcType="VARCHAR"/>
+        <result column="create_time" property="createTime" jdbcType="VARCHAR" />
+        <result column="remark" property="remark" jdbcType="VARCHAR" />
+        <result column="download_count" property="downloadCount" jdbcType="INTEGER" />
+        <result column="update_personnel" property="updatePersonnel" jdbcType="VARCHAR" />
+    </resultMap>
+    
+    
+    <!-- huzi -  2018年01月31日 表字段名称 -->
+    <sql id="Base_Column_List" >
+        id, name, path, version_name,version_code, create_time, remark, download_count,update_personnel
+    </sql>
+    
+    <!-- huzi - 2018年01月31日  根据版本号查询最新版本应用 -->
+    <select id="finMaxVersion" resultMap="BaseResultMap" >
+        select  
+        	<include refid="Base_Column_List" />
+        from 
+        	sys_app_android_update 
+       	where 
+       		version_code = (select max(version_code + 0) from sys_app_android_update)
+    </select>
+    
+    
+    <!-- huzi -  2018年01月31日  分页查询SQL -->
+    <sql id="findByPageSql" >
+        select a.* from sys_app_android_update a
+        <where >
+            <if test="param.id != null " >
+                and a.id = #{param.id,jdbcType=BIGINT}
+            </if>
+            <if test="param.name != null and param.name != ''" >
+                and a.name = #{param.name,jdbcType=VARCHAR}
+            </if>
+            <if test="param.path != null and param.path != ''" >
+                and a.path = #{param.path,jdbcType=VARCHAR}
+            </if>
+            <if test="versionName != null and versionName != ''" >
+                and a.version_name like '%${versionName}%'
+            </if>
+            <if test="startTime !=null and startTime != ''">
+            	and a.create_time &gt; #{startTime}
+            </if>
+            <if test="endTime !=null and endTime != ''">
+            	and a.create_time &lt; #{endTime}
+            </if>
+        </where>
+        order by a.id desc
+    </sql>
+    
+    
+    <!-- huzi -   2018年01月31日   通过实体中的条件查询所有 -->
+    <select id="findAll" resultMap="BaseResultMap" >
+        select temp.* from (
+        <include refid="findByPageSql" />
+        ) temp 
+    </select>
+    
+    
+    <!-- huzi -  2018年01月31日   分页查询 -->
+    <select id="findByPage" resultMap="BaseResultMap" >
+        select temp.* from (
+        <include refid="findByPageSql" />
+        ) temp limit #{offset}, #{pageSize}
+    </select>
+    
+    
+    <!-- huzi -  2018年01月31日   分页查询总条数 -->
+    <select id="findByPageCount" resultType="java.lang.Integer" >
+        select count(1) from (
+        <include refid="findByPageSql" />
+        ) temp 
+    </select>
+    
+    
+    <!-- huzi - 2018年01月31日  分页查询 -->
+    <select id="getAppAndroidList" resultType="java.util.Map" >
+        select 
+	        id,
+	        name,
+	        path,
+	        version_name as versionName,
+	        version_code as versionCode,
+	        create_time as createTime,
+	        remark,
+	        download_count as downloadCount, 
+	        update_personnel as updatePersonnel
+        from sys_app_android_update a
+        <where >
+            <if test="param.id != null " >
+                and a.id = #{param.id,jdbcType=BIGINT}
+            </if>
+            <if test="param.name != null and param.name != ''" >
+                and a.name = #{param.name,jdbcType=VARCHAR}
+            </if>
+            <if test="param.path != null and param.path != ''" >
+                and a.path = #{param.path,jdbcType=VARCHAR}
+            </if>
+          <if test="versionName != null and versionName != ''" >
+                and a.version_name like '%${versionName}%'
+            </if>
+            <if test="startTime !=null and startTime != ''">
+            	and a.create_time &gt; #{startTime}
+            </if>
+            <if test="endTime !=null and endTime != ''">
+            	and a.create_time &lt; #{endTime}
+            </if>
+        </where>
+        order by a.id desc limit #{offset}, #{pageSize}
+    </select>
+    
+    
+    <!-- huzi -  2018年01月31日   分页查询总条数 -->
+    <select id="getAppAndroidCount" resultType="java.lang.Integer" >
+        select count(1) from sys_app_android_update a
+        <where >
+            <if test="param.id != null " >
+                and a.id = #{param.id,jdbcType=BIGINT}
+            </if>
+            <if test="param.name != null and param.name != ''" >
+                and a.name = #{param.name,jdbcType=VARCHAR}
+            </if>
+            <if test="param.path != null and param.path != ''" >
+                and a.path = #{param.path,jdbcType=VARCHAR}
+            </if>
+            <if test="versionName != null and versionName != ''" >
+                and a.version_name like '%${versionName}%'
+            </if>
+            <if test="startTime !=null">
+            	and a.create_time &gt; #{startTime}
+            </if>
+            <if test="endTime !=null">
+            	and a.create_time &lt; #{endTime}
+            </if>
+        </where> 
+    </select>
+    
+
+    <!-- huzi  2018年01月31日 根据ID查询 -->
+    <select id="findById" resultMap="BaseResultMap" parameterType="java.lang.Long" >
+        select 
+        <include refid="Base_Column_List" />
+        from sys_app_android_update
+        where id = #{id,jdbcType=BIGINT}
+    </select>
+    
+    <!--  huzi  2018年01月31日 根据版本号查询  （未使用）-->
+    <select id="findByVersionName" resultMap="BaseResultMap" parameterType="java.lang.String" >
+        select 
+        <include refid="Base_Column_List" />
+        from sys_app_android_update
+        where version_code = #{versionCode,jdbcType=VARCHAR}
+    </select>
+    
+    
+    <!-- huzi  2018年01月31日  添加数据 -->
+    <insert id="insert" parameterType="com.kapphk.pms.bean.BeanAppAndroidUpdate" useGeneratedKeys="true" keyProperty="id" >
+        insert into sys_app_android_update
+        <trim prefix="(" suffix=")" suffixOverrides="," >
+            <if test="name != null" >
+                name,
+            </if>
+            <if test="path != null" >
+                path,
+            </if>
+            <if test="versionName != null" >
+                version_name,
+            </if>
+            <if test="versionCode != null" >
+                version_code,
+            </if>
+            <if test="createTime != null" >
+                create_time,
+            </if>
+            <if test="remark != null" >
+                remark,
+            </if>
+            <if test="downloadCount != null" >
+                download_count,
+            </if>
+            <if test="updatePersonnel != null" >
+                update_personnel,
+            </if>
+        </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides="," >
+            <if test="name != null" >
+                #{name,jdbcType=VARCHAR},
+            </if>
+            <if test="path != null" >
+                #{path,jdbcType=VARCHAR},
+            </if>
+            <if test="versionName != null" >
+                #{versionName,jdbcType=VARCHAR},
+            </if>
+             <if test="versionCode != null" >
+                #{versionCode,jdbcType=VARCHAR},
+            </if>
+            <if test="createTime != null" >
+                #{createTime,jdbcType=VARCHAR},
+            </if>
+            <if test="remark != null" >
+                #{remark,jdbcType=VARCHAR},
+            </if>
+            <if test="downloadCount != null" >
+                #{downloadCount,jdbcType=INTEGER},
+            </if>
+            <if test="updatePersonnel != null" >
+                #{updatePersonnel,jdbcType=VARCHAR},
+            </if>
+        </trim>
+    </insert>
+    
+    
+    <!-- huzi - 2018年01月31日   删除多条数据 -->
+    <delete id="deletes" >
+        delete from sys_app_android_update where id in 
+        <foreach collection="ids" item="item" open="(" separator="," close=")" >
+            #{item}
+        </foreach>
+    </delete>
+    
+    
+    <!-- huzi -  2018年01月31日     查询所有  按时间降序 -->
+    <select id="getAppAndroidUpdate" resultType="java.util.Map">
+    	select 
+    		<include refid="Base_Column_List" />
+    	from
+    		sys_app_android_update order by create_time desc;
+    </select>
+    
+    
+    <!-- huzi -  2018年01月31日   更新数据 -->
+    <update id="update" parameterType="com.kapphk.pms.bean.BeanAppAndroidUpdate" >
+        update sys_app_android_update
+        <set >
+        	<if test="name != null" >
+                name = #{name,jdbcType=VARCHAR},
+            </if>
+            <if test="versionName != null" >
+                version_name = #{versionName,jdbcType=VARCHAR},
+            </if> 
+            <if test="versionCode != null" >
+                version_code = #{versionCode,jdbcType=VARCHAR},
+            </if>
+             <if test="path != null" >
+                path = #{path,jdbcType=VARCHAR},
+            </if>
+             <if test="updatePersonnel != null" >
+                update_personnel = #{updatePersonnel,jdbcType=VARCHAR},
+            </if>
+             <if test="remark != null" >
+                remark = #{remark,jdbcType=VARCHAR},
+            </if>
+            <if test="downloadCount != null" >
+                download_count = #{downloadCount,jdbcType=INTEGER},
+            </if>
+        </set>
+        where id = #{id,jdbcType=BIGINT}
+    </update>
+    
+    
+</mapper>

@@ -1,0 +1,655 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.kapphk.pms.dao.mapper.BeanUserMapper" >
+    <resultMap id="BaseResultMap" type="com.kapphk.pms.bean.BeanUser" >
+        <!--  自动生成 2016年01月28日 表与实体类字段对应 -->
+        <id column="id" property="id" jdbcType="BIGINT" />
+        <result column="user_name" property="userName" jdbcType="VARCHAR" />
+        <result column="password" property="password" jdbcType="VARCHAR" />
+        <result column="nick_name" property="nickName" jdbcType="VARCHAR" />
+        <result column="logo_path" property="logoPath" jdbcType="VARCHAR" />
+        <result column="contacter" property="contacter" jdbcType="VARCHAR" />
+        <result column="mobile_phone" property="mobilePhone" jdbcType="VARCHAR" />
+        <result column="contacter_provice" property="contacterProvice" jdbcType="BIGINT" />
+        <result column="contacter_city" property="contacterCity" jdbcType="BIGINT" />
+        <result column="contacter_district" property="contacterDistrict" jdbcType="BIGINT" />
+        <result column="contacter_address" property="contacterAddress" jdbcType="VARCHAR" />
+        <result column="province" property="province" jdbcType="BIGINT" />
+        <result column="city" property="city" jdbcType="BIGINT" />
+        <result column="district" property="district" jdbcType="BIGINT" />
+        <result column="address" property="address" jdbcType="VARCHAR" />
+        <result column="sex" property="sex" jdbcType="VARCHAR" />
+        <result column="email" property="email" jdbcType="VARCHAR" />
+        <result column="autograph" property="autograph" jdbcType="VARCHAR" />
+        <result column="birth_province" property="birthProvince" jdbcType="BIGINT" />
+        <result column="birth_city" property="birthCity" jdbcType="BIGINT" />
+        <result column="status" property="status" jdbcType="VARCHAR" />
+        <result column="cuisine_menu_category_ids" property="cuisineMenuCategoryIds" jdbcType="VARCHAR" />
+        <result column="flavor_menu_category_ids" property="flavorMenuCategoryIds" jdbcType="VARCHAR" />
+        <result column="create_time" property="createTime" jdbcType="VARCHAR" />
+        <result column="last_time" property="lastTime" jdbcType="VARCHAR" />
+    </resultMap>
+    
+    
+
+    <!-- 查询单条数据 huzi 2018-06-21 -->
+    <select id="findMapById" resultType="java.util.Map">
+    	SELECT
+    		u.`contacter_provice` as contacterProvice,
+    		u.`contacter_city` as contacterCity,
+    		u.`contacter_district` as contacterDistrict,
+    		u.`contacter_address` as contacterAddress,
+    		u.`province`,
+    		u.`city`,
+    		u.`district`,
+    		u.`birth_province` as birthProvince,
+    		u.`birth_city` as birthCity,
+    		u.`status`,
+    		u.`cuisine_menu_category_ids` as cuisineMenuCategoryIds,
+    		u.`flavor_menu_category_ids` as flavorMenuCategoryIds,
+    		u.`password`,
+    		u.`logo_path` as logoPath,
+    	u.`mobile_phone` AS mobilePhone,
+		u.`address`,
+		CONCAT((SELECT province FROM sys_province_info WHERE id = u.`birth_province`),(SELECT city FROM sys_city_info WHERE id = u.`birth_city`)) AS birthPlace,
+		CONCAT((SELECT province FROM sys_province_info WHERE id = u.`province`),(SELECT city FROM sys_city_info WHERE id = u.`city`),(SELECT distrct FROM sys_distrct_info WHERE id = u.`district`)) AS livePlace,
+		u.`contacter`,
+		u.`autograph`,
+		u.`email`,
+		IF(u.`sex`= '1','男','女') sex,
+		u.`create_time` as createTime,
+		u.`nick_name` AS nickName,
+		u.`user_name` AS userName,
+		u.id,
+		u.`last_time` as lastTime,
+		(SELECT GROUP_CONCAT(number) FROM sys_equipment e WHERE e.uid = u.`id`) eqNumber,
+		(SELECT GROUP_CONCAT(c.name)FROM sys_menu_category c,sys_user_menu_category uc WHERE c.id = uc.category_id AND uc.uid = u.id AND c.pid = (SELECT id FROM sys_menu_category  WHERE NAME = '菜系')) cuisine,
+		(SELECT GROUP_CONCAT(c.name)FROM sys_menu_category c,sys_user_menu_category uc WHERE c.id = uc.category_id AND uc.uid = u.id AND c.pid = (SELECT id FROM sys_menu_category  WHERE NAME = '口味')) taste
+		FROM sys_user u 
+		where u.id = #{uid}
+    </select>
+    
+    <!-- 查询手机用户数据总条数  huzi 2018-06-21 -->
+    <select id="findAllPageCount" resultType="java.lang.Integer" >
+     select count(  t.userName ) from (
+	 	SELECT distinct( u.`user_name` ) as userName,
+	        u.`last_time` AS lastTime,
+			u.`create_time` AS createTime,
+			u.`nick_name` AS nickName,
+			u.id,
+			u.status,
+			(SELECT GROUP_CONCAT(number) FROM sys_equipment e WHERE e.uid = u.`id`) eqNumber,
+			(SELECT GROUP_CONCAT(c.name)FROM sys_menu_category c,sys_user_menu_category uc WHERE c.id = uc.category_id AND uc.uid = u.id AND c.pid = (SELECT id FROM sys_menu_category  WHERE name = '菜系')) cuisine,
+			(SELECT GROUP_CONCAT(c.name)FROM sys_menu_category c,sys_user_menu_category uc WHERE c.id = uc.category_id AND uc.uid = u.id AND c.pid = (SELECT id FROM sys_menu_category  WHERE name = '口味')) taste
+			FROM sys_user u left join sys_equipment e on u.id = e.uid
+	    <where>
+	    	u.id &gt;0
+	    	<if test="searchUserName != null and searchUserName != ''">
+	    		and u.user_name like '%${searchUserName}%' 
+	    	</if>
+	    	<if test="searchNickName != null and searchNickName != ''">
+	    		and u.nick_name like '%${searchNickName}%'
+	    	</if>
+	    	<if test="searchNumber != null and searchNumber != ''">
+	    		and e.number like '%${searchNumber}%' 
+	    	</if>
+	    </where>
+	    ) t
+    </select>
+    
+    
+    <!-- 查询手机用户数据列表  huzi 2018-06-21 -->
+    <select id="findAllPage" resultType="java.util.Map">
+	    SELECT distinct
+	    u.`last_time` AS lastTime,
+		u.`create_time` AS createTime,
+		u.`nick_name` AS nickName,
+		u.`user_name` AS userName,
+		u.id,
+		u.status,
+		(SELECT GROUP_CONCAT(number) FROM sys_equipment e WHERE e.uid = u.`id`) eqNumber,
+		(SELECT GROUP_CONCAT(c.name)FROM sys_menu_category c,sys_user_menu_category uc WHERE c.id = uc.category_id AND uc.uid = u.id AND c.pid = (SELECT id FROM sys_menu_category  WHERE name = '菜系')) cuisine,
+		(SELECT GROUP_CONCAT(c.name)FROM sys_menu_category c,sys_user_menu_category uc WHERE c.id = uc.category_id AND uc.uid = u.id AND c.pid = (SELECT id FROM sys_menu_category  WHERE name = '口味')) taste
+		FROM sys_user u left join sys_equipment e on u.id = e.uid
+	    <where>
+	    	u.id &gt;0
+	    	<if test="searchUserName != null and searchUserName != ''">
+	    		and u.user_name like '%${searchUserName}%' 
+	    	</if>
+	    	<if test="searchNickName != null and searchNickName != ''">
+	    		and u.nick_name like '%${searchNickName}%'
+	    	</if>
+	    	<if test="searchNumber != null and searchNumber != ''">
+	    		and e.number like '%${searchNumber}%' 
+	    	</if>
+	    </where>
+	    order by u.create_time desc
+	    limit #{page},#{rows}
+    </select>
+    
+    
+    <sql id="Base_Column_List" >
+        <!--  自动生成 2016年01月28日 表字段名称 -->
+        id, user_name, password, nick_name, logo_path, contacter, mobile_phone, contacter_provice, 
+        contacter_city, contacter_district, contacter_address, province, city, district, 
+        address, sex, email, autograph, birth_province, birth_city, status, cuisine_menu_category_ids, 
+        flavor_menu_category_ids, create_time, last_time
+    </sql>
+    
+    <sql id="findByPageSql" >
+        <!-- WARNING -  自动生成 2016-01-28  分页查询SQL -->
+        select a.* from sys_user a
+        <where >
+            <if test="param.id != null " >
+                and a.id = #{param.id,jdbcType=BIGINT}
+            </if>
+            <if test="param.userName != null and param.userName != ''" >
+                and a.user_name = #{param.userName,jdbcType=VARCHAR}
+            </if>
+            <if test="param.password != null and param.password != ''" >
+                and a.password = #{param.password,jdbcType=VARCHAR}
+            </if>
+            <if test="param.nickName != null and param.nickName != ''" >
+                and a.nick_name = #{param.nickName,jdbcType=VARCHAR}
+            </if>
+            <if test="param.logoPath != null and param.logoPath != ''" >
+                and a.logo_path = #{param.logoPath,jdbcType=VARCHAR}
+            </if>
+            <if test="param.contacter != null and param.contacter != ''" >
+                and a.contacter = #{param.contacter,jdbcType=VARCHAR}
+            </if>
+            <if test="param.mobilePhone != null and param.mobilePhone != ''" >
+                and a.mobile_phone = #{param.mobilePhone,jdbcType=VARCHAR}
+            </if>
+            <if test="param.contacterProvice != null " >
+                and a.contacter_provice = #{param.contacterProvice,jdbcType=BIGINT}
+            </if>
+            <if test="param.contacterCity != null " >
+                and a.contacter_city = #{param.contacterCity,jdbcType=BIGINT}
+            </if>
+            <if test="param.contacterDistrict != null " >
+                and a.contacter_district = #{param.contacterDistrict,jdbcType=BIGINT}
+            </if>
+            <if test="param.contacterAddress != null and param.contacterAddress != ''" >
+                and a.contacter_address = #{param.contacterAddress,jdbcType=VARCHAR}
+            </if>
+            <if test="param.province != null " >
+                and a.province = #{param.province,jdbcType=BIGINT}
+            </if>
+            <if test="param.city != null " >
+                and a.city = #{param.city,jdbcType=BIGINT}
+            </if>
+            <if test="param.district != null " >
+                and a.district = #{param.district,jdbcType=BIGINT}
+            </if>
+            <if test="param.address != null and param.address != ''" >
+                and a.address = #{param.address,jdbcType=VARCHAR}
+            </if>
+            <if test="param.sex != null and param.sex != ''" >
+                and a.sex = #{param.sex,jdbcType=VARCHAR}
+            </if>
+            <if test="param.email != null and param.email != ''" >
+                and a.email = #{param.email,jdbcType=VARCHAR}
+            </if>
+            <if test="param.autograph != null and param.autograph != ''" >
+                and a.autograph = #{param.autograph,jdbcType=VARCHAR}
+            </if>
+            <if test="param.birthProvince != null " >
+                and a.birth_province = #{param.birthProvince,jdbcType=BIGINT}
+            </if>
+            <if test="param.birthCity != null " >
+                and a.birth_city = #{param.birthCity,jdbcType=BIGINT}
+            </if>
+            <if test="param.status != null and param.status != ''" >
+                and a.status = #{param.status,jdbcType=VARCHAR}
+            </if>
+            <if test="param.cuisineMenuCategoryIds != null and param.cuisineMenuCategoryIds != ''" >
+                and a.cuisine_menu_category_ids = #{param.cuisineMenuCategoryIds,jdbcType=VARCHAR}
+            </if>
+            <if test="param.flavorMenuCategoryIds != null and param.flavorMenuCategoryIds != ''" >
+                and a.flavor_menu_category_ids = #{param.flavorMenuCategoryIds,jdbcType=VARCHAR}
+            </if>
+        </where>
+        order by a.id desc
+    </sql>
+    
+    <select id="findByPage" resultMap="BaseResultMap" >
+        <!-- WARNING -  自动生成 2016-01-28  分页查询 -->
+        select temp.* from (
+        <include refid="findByPageSql" />
+        ) temp limit #{offset}, #{pageSize}
+    </select>
+    
+    <select id="findByPageCount" resultType="java.lang.Integer" >
+        <!-- WARNING -  自动生成 2016-01-28  分页查询总条数 -->
+        select count(1) from (
+        <include refid="findByPageSql" />
+        ) temp 
+    </select>
+    
+    <select id="findById" resultMap="BaseResultMap" parameterType="java.lang.Long" >
+        <!--  自动生成 2016年01月28日 根据ID查询 -->
+        select 
+        <include refid="Base_Column_List" />
+        from sys_user
+        where id = #{id,jdbcType=BIGINT}
+    </select>
+    
+    <select id="load" resultMap="BaseResultMap" >
+        <!-- WARNING -  自动生成 2016-01-28  根据多个ID查询 -->
+        select 
+        <include refid="Base_Column_List" />
+        from sys_user where id in 
+        <foreach collection="ids" item="item" open="(" separator="," close=")" >
+            #{item}
+        </foreach>
+    </select>
+    
+    <select id="all" resultMap="BaseResultMap" >
+        <!-- WARNING -  自动生成 2016-01-28  查询所有 -->
+        select 
+        <include refid="Base_Column_List" />
+        from sys_user
+    </select>
+    
+    <select id="count" resultType="java.lang.Integer" >
+        <!-- WARNING -  自动生成 2016-01-28 查询总条数 -->
+        select count(1) from sys_user
+    </select>
+    
+    <update id="update" parameterType="com.kapphk.pms.bean.BeanUser" >
+        <!--  自动生成 2016年01月28日 更新数据 -->
+        update sys_user
+        <set >
+            <if test="userName != null" >
+                user_name = #{userName,jdbcType=VARCHAR},
+            </if>
+            <if test="password != null" >
+                password = #{password,jdbcType=VARCHAR},
+            </if>
+            <if test="nickName != null" >
+                nick_name = #{nickName,jdbcType=VARCHAR},
+            </if>
+            <if test="logoPath != null" >
+                logo_path = #{logoPath,jdbcType=VARCHAR},
+            </if>
+            <if test="contacter != null" >
+                contacter = #{contacter,jdbcType=VARCHAR},
+            </if>
+            <if test="mobilePhone != null" >
+                mobile_phone = #{mobilePhone,jdbcType=VARCHAR},
+            </if>
+            <if test="contacterProvice != null" >
+                contacter_provice = #{contacterProvice,jdbcType=BIGINT},
+            </if>
+            <if test="contacterCity != null" >
+                contacter_city = #{contacterCity,jdbcType=BIGINT},
+            </if>
+            <if test="contacterDistrict != null" >
+                contacter_district = #{contacterDistrict,jdbcType=BIGINT},
+            </if>
+            <if test="contacterAddress != null" >
+                contacter_address = #{contacterAddress,jdbcType=VARCHAR},
+            </if>
+            <if test="province != null" >
+                province = #{province,jdbcType=BIGINT},
+            </if>
+            <if test="city != null" >
+                city = #{city,jdbcType=BIGINT},
+            </if>
+            <if test="district != null" >
+                district = #{district,jdbcType=BIGINT},
+            </if>
+            <if test="address != null" >
+                address = #{address,jdbcType=VARCHAR},
+            </if>
+            <if test="sex != null" >
+                sex = #{sex,jdbcType=VARCHAR},
+            </if>
+            <if test="email != null" >
+                email = #{email,jdbcType=VARCHAR},
+            </if>
+            <if test="autograph != null" >
+                autograph = #{autograph,jdbcType=VARCHAR},
+            </if>
+            <if test="birthProvince != null" >
+                birth_province = #{birthProvince,jdbcType=BIGINT},
+            </if>
+            <if test="birthCity != null" >
+                birth_city = #{birthCity,jdbcType=BIGINT},
+            </if>
+            <if test="status != null" >
+                status = #{status,jdbcType=VARCHAR},
+            </if>
+            <if test="cuisineMenuCategoryIds != null" >
+                cuisine_menu_category_ids = #{cuisineMenuCategoryIds,jdbcType=VARCHAR},
+            </if>
+            <if test="flavorMenuCategoryIds != null" >
+                flavor_menu_category_ids = #{flavorMenuCategoryIds,jdbcType=VARCHAR},
+            </if>
+            <if test="createTime != null" >
+                create_time = #{createTime,jdbcType=VARCHAR},
+            </if>
+            <if test="lastTime != null" >
+                last_time = #{lastTime,jdbcType=VARCHAR},
+            </if>
+        </set>
+        where id = #{id,jdbcType=BIGINT}
+    </update>
+    
+    <insert id="insert" parameterType="com.kapphk.pms.bean.BeanUser" useGeneratedKeys="true" keyProperty="id" >
+        <!--  自动生成 2016年01月28日 添加数据 -->
+        insert into sys_user
+        <trim prefix="(" suffix=")" suffixOverrides="," >
+        	<if test="id != null" >
+                id,
+            </if>
+            <if test="userName != null" >
+                user_name,
+            </if>
+            <if test="password != null" >
+                password,
+            </if>
+            <if test="nickName != null" >
+                nick_name,
+            </if>
+            <if test="logoPath != null" >
+                logo_path,
+            </if>
+            <if test="contacter != null" >
+                contacter,
+            </if>
+            <if test="mobilePhone != null" >
+                mobile_phone,
+            </if>
+            <if test="contacterProvice != null" >
+                contacter_provice,
+            </if>
+            <if test="contacterCity != null" >
+                contacter_city,
+            </if>
+            <if test="contacterDistrict != null" >
+                contacter_district,
+            </if>
+            <if test="contacterAddress != null" >
+                contacter_address,
+            </if>
+            <if test="province != null" >
+                province,
+            </if>
+            <if test="city != null" >
+                city,
+            </if>
+            <if test="district != null" >
+                district,
+            </if>
+            <if test="address != null" >
+                address,
+            </if>
+            <if test="sex != null" >
+                sex,
+            </if>
+            <if test="email != null" >
+                email,
+            </if>
+            <if test="autograph != null" >
+                autograph,
+            </if>
+            <if test="birthProvince != null" >
+                birth_province,
+            </if>
+            <if test="birthCity != null" >
+                birth_city,
+            </if>
+            <if test="status != null" >
+                status,
+            </if>
+            <if test="cuisineMenuCategoryIds != null" >
+                cuisine_menu_category_ids,
+            </if>
+            <if test="flavorMenuCategoryIds != null" >
+                flavor_menu_category_ids,
+            </if>
+            <if test="createTime != null" >
+                create_time,
+            </if>
+             <if test="lastTime != null" >
+                last_time,
+            </if>
+        </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides="," >
+        	<if test="id != null" >
+                #{id,jdbcType=BIGINT},
+            </if>
+            <if test="userName != null" >
+                #{userName,jdbcType=VARCHAR},
+            </if>
+            <if test="password != null" >
+                #{password,jdbcType=VARCHAR},
+            </if>
+            <if test="nickName != null" >
+                #{nickName,jdbcType=VARCHAR},
+            </if>
+            <if test="logoPath != null" >
+                #{logoPath,jdbcType=VARCHAR},
+            </if>
+            <if test="contacter != null" >
+                #{contacter,jdbcType=VARCHAR},
+            </if>
+            <if test="mobilePhone != null" >
+                #{mobilePhone,jdbcType=VARCHAR},
+            </if>
+            <if test="contacterProvice != null" >
+                #{contacterProvice,jdbcType=BIGINT},
+            </if>
+            <if test="contacterCity != null" >
+                #{contacterCity,jdbcType=BIGINT},
+            </if>
+            <if test="contacterDistrict != null" >
+                #{contacterDistrict,jdbcType=BIGINT},
+            </if>
+            <if test="contacterAddress != null" >
+                #{contacterAddress,jdbcType=VARCHAR},
+            </if>
+            <if test="province != null" >
+                #{province,jdbcType=BIGINT},
+            </if>
+            <if test="city != null" >
+                #{city,jdbcType=BIGINT},
+            </if>
+            <if test="district != null" >
+                #{district,jdbcType=BIGINT},
+            </if>
+            <if test="address != null" >
+                #{address,jdbcType=VARCHAR},
+            </if>
+            <if test="sex != null" >
+                #{sex,jdbcType=VARCHAR},
+            </if>
+            <if test="email != null" >
+                #{email,jdbcType=VARCHAR},
+            </if>
+            <if test="autograph != null" >
+                #{autograph,jdbcType=VARCHAR},
+            </if>
+            <if test="birthProvince != null" >
+                #{birthProvince,jdbcType=BIGINT},
+            </if>
+            <if test="birthCity != null" >
+                #{birthCity,jdbcType=BIGINT},
+            </if>
+            <if test="status != null" >
+                #{status,jdbcType=VARCHAR},
+            </if>
+            <if test="cuisineMenuCategoryIds != null" >
+                #{cuisineMenuCategoryIds,jdbcType=VARCHAR},
+            </if>
+            <if test="flavorMenuCategoryIds != null" >
+                #{flavorMenuCategoryIds,jdbcType=VARCHAR},
+            </if>
+            <if test="createTime != null" >
+                #{createTime,jdbcType=VARCHAR},
+            </if>
+            <if test="lastTime != null" >
+                #{last_time,jdbcType=VARCHAR},
+            </if>
+        </trim>
+    </insert>
+    
+    <insert id="inserts" parameterType="java.util.List" >
+        <!-- WARNING -  自动生成 2016-01-28 添加多条数据 -->
+        insert into sys_user (user_name, password, nick_name, logo_path, contacter, mobile_phone, contacter_provice, contacter_city, contacter_district, contacter_address, province, city, district, address, sex, email, autograph, birth_province, birth_city, status, cuisine_menu_category_ids, flavor_menu_category_ids, create_time, last_time)
+        values
+        <foreach collection="list" item="item" separator="," >
+            (#{item.userName,jdbcType=VARCHAR}, #{item.password,jdbcType=VARCHAR}, #{item.nickName,jdbcType=VARCHAR}, #{item.logoPath,jdbcType=VARCHAR}, #{item.contacter,jdbcType=VARCHAR}, #{item.mobilePhone,jdbcType=VARCHAR}, #{item.contacterProvice,jdbcType=BIGINT}, #{item.contacterCity,jdbcType=BIGINT}, #{item.contacterDistrict,jdbcType=BIGINT}, #{item.contacterAddress,jdbcType=VARCHAR}, #{item.province,jdbcType=BIGINT}, #{item.city,jdbcType=BIGINT}, #{item.district,jdbcType=BIGINT}, #{item.address,jdbcType=VARCHAR}, #{item.sex,jdbcType=VARCHAR}, #{item.email,jdbcType=VARCHAR}, #{item.autograph,jdbcType=VARCHAR}, #{item.birthProvince,jdbcType=BIGINT}, #{item.birthCity,jdbcType=BIGINT}, #{item.status,jdbcType=VARCHAR}, #{item.cuisineMenuCategoryIds,jdbcType=VARCHAR}, #{item.flavorMenuCategoryIds,jdbcType=VARCHAR}, #{item.createTime,jdbcType=VARCHAR}, #{item.lastTime,jdbcType=VARCHAR})
+        </foreach>
+    </insert>
+    
+    <delete id="delete" parameterType="java.lang.Long" >
+        <!--  自动生成 2016年01月28日 删除数据 -->
+        delete from sys_user
+        where id = #{id,jdbcType=BIGINT}
+    </delete>
+    
+    <delete id="deletes" >
+        <!-- WARNING -  自动生成 2016-01-28 删除多条数据 -->
+        delete from sys_user where id in 
+        <foreach collection="ids" item="item" open="(" separator="," close=")" >
+            #{item}
+        </foreach>
+    </delete>
+    
+    <delete id="deleteByEntity" >
+        <!-- WARNING -  自动生成 2016-01-28 通过实体类中的条件删除数据 -->
+        delete from sys_user
+        <where >
+            <if test="param.id != null " >
+                and id = #{param.id,jdbcType=BIGINT}
+            </if>
+            <if test="param.userName != null and param.userName != ''" >
+                and user_name = #{param.userName,jdbcType=VARCHAR}
+            </if>
+            <if test="param.password != null and param.password != ''" >
+                and password = #{param.password,jdbcType=VARCHAR}
+            </if>
+            <if test="param.nickName != null and param.nickName != ''" >
+                and nick_name = #{param.nickName,jdbcType=VARCHAR}
+            </if>
+            <if test="param.logoPath != null and param.logoPath != ''" >
+                and logo_path = #{param.logoPath,jdbcType=VARCHAR}
+            </if>
+            <if test="param.contacter != null and param.contacter != ''" >
+                and contacter = #{param.contacter,jdbcType=VARCHAR}
+            </if>
+            <if test="param.mobilePhone != null and param.mobilePhone != ''" >
+                and mobile_phone = #{param.mobilePhone,jdbcType=VARCHAR}
+            </if>
+            <if test="param.contacterProvice != null " >
+                and contacter_provice = #{param.contacterProvice,jdbcType=BIGINT}
+            </if>
+            <if test="param.contacterCity != null " >
+                and contacter_city = #{param.contacterCity,jdbcType=BIGINT}
+            </if>
+            <if test="param.contacterDistrict != null " >
+                and contacter_district = #{param.contacterDistrict,jdbcType=BIGINT}
+            </if>
+            <if test="param.contacterAddress != null and param.contacterAddress != ''" >
+                and contacter_address = #{param.contacterAddress,jdbcType=VARCHAR}
+            </if>
+            <if test="param.province != null " >
+                and province = #{param.province,jdbcType=BIGINT}
+            </if>
+            <if test="param.city != null " >
+                and city = #{param.city,jdbcType=BIGINT}
+            </if>
+            <if test="param.district != null " >
+                and district = #{param.district,jdbcType=BIGINT}
+            </if>
+            <if test="param.address != null and param.address != ''" >
+                and address = #{param.address,jdbcType=VARCHAR}
+            </if>
+            <if test="param.sex != null and param.sex != ''" >
+                and sex = #{param.sex,jdbcType=VARCHAR}
+            </if>
+            <if test="param.email != null and param.email != ''" >
+                and email = #{param.email,jdbcType=VARCHAR}
+            </if>
+            <if test="param.autograph != null and param.autograph != ''" >
+                and autograph = #{param.autograph,jdbcType=VARCHAR}
+            </if>
+            <if test="param.birthProvince != null " >
+                and birth_province = #{param.birthProvince,jdbcType=BIGINT}
+            </if>
+            <if test="param.birthCity != null " >
+                and birth_city = #{param.birthCity,jdbcType=BIGINT}
+            </if>
+            <if test="param.status != null and param.status != ''" >
+                and status = #{param.status,jdbcType=VARCHAR}
+            </if>
+            <if test="param.cuisineMenuCategoryIds != null and param.cuisineMenuCategoryIds != ''" >
+                and cuisine_menu_category_ids = #{param.cuisineMenuCategoryIds,jdbcType=VARCHAR}
+            </if>
+            <if test="param.flavorMenuCategoryIds != null and param.flavorMenuCategoryIds != ''" >
+                and flavor_menu_category_ids = #{param.flavorMenuCategoryIds,jdbcType=VARCHAR}
+            </if>
+        </where>
+    </delete>
+    
+    <select id="findAll" resultMap="BaseResultMap" >
+        <!-- WARNING -  自动生成 2016-01-28  通过实体中的条件查询所有 -->
+        select temp.* from (
+        <include refid="findByPageSql" />
+        ) temp 
+    </select>
+   
+    <select id="findByUserId" resultType="java.util.Map">
+      select id,nick_name AS nickName,user_name as userName,logo_path as logoPath,autograph,sex,email,create_time as createTime,last_time as lastTime,contacter, mobile_phone as mobilePhone,
+      birth_province as birthProvinceId,birth_city as birthCityId,cuisine_menu_category_ids as cuisineMenuCategoryIds,flavor_menu_category_ids as flavorMenuCategoryIds,
+      province as dwellingProvinceId,city as dwellingCityId, district as dwellingDistrictId, address as dwellingAddress,
+      contacter_provice as contacterProviceId, contacter_city as contacterCityId,contacter_district as contacterDistrictId, contacter_address as contacterAddress,
+      (select  province from    sys_province_info p where p.id =  u.birth_province) as birthProvinceName,
+      (select  city     from    sys_city_info     c where c.id =  u.birth_city) as birthCityName,
+      (select  province from    sys_province_info p where p.id =  u.province) as dwellingProvinceName,
+      (select  city     from    sys_city_info     c where c.id =  u.city) as dwellingCityName,
+      (select  distrct  from    sys_distrct_info  d where d.id =  u.district) as dwellingDistrictName,
+      (select  province from    sys_province_info p where p.id =  u.contacter_provice) as contacterProvinceName,
+      (select  city     from    sys_city_info     c where c.id =  u.contacter_city) as contacterCityName,
+      (select  distrct  from    sys_distrct_info  d where d.id =  u.contacter_district) as contacterDistrictName,
+      (SELECT IFNULL(COUNT(1),0) FROM sys_menu_book b WHERE  b.uid = u.id AND `status` != '2') AS menuBookAmount,
+      (select group_concat(name) from sys_menu_category mc where find_in_set(mc.id,u.cuisine_menu_category_ids) ) as cuisineMenuCategory ,
+      (select group_concat(name) from sys_menu_category mc where find_in_set(mc.id,u.flavor_menu_category_ids) ) as flavorMenuCategory 
+      from sys_user u
+      where id = #{userId}
+    </select>
+    
+    
+  <select id="findByCondition" resultMap="BaseResultMap"  >
+       select * from sys_user  
+       <where>
+            <if test="param.userName != null and param.userName != ''" >
+                and user_name = #{param.userName,jdbcType=VARCHAR}
+            </if>
+            <if test="param.password != null and param.password != ''" >
+                and password = #{param.password,jdbcType=VARCHAR}
+            </if>
+             <if test="param.status != null and param.status != ''" >
+                and status = #{param.status,jdbcType=VARCHAR}
+             </if>
+         </where>
+    </select>
+    
+     <update id="upUserStatus" >
+    	 <!-- WARNING -  huzi 2018-04-23 更新多条用户状态 -->
+    	  update  sys_user 
+    	  <set>
+    	  	<if test="type != null">
+    	  		status=#{type,jdbcType=VARCHAR}
+    	 	</if>
+    	  </set>
+    	  	where  id in
+    	  	 <foreach collection="ids" item="item" open="(" separator="," close=")" >
+            	#{item}
+        	 </foreach>
+     </update>
+    
+</mapper>

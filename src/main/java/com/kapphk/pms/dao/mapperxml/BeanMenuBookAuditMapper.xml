@@ -1,0 +1,211 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.kapphk.pms.dao.mapper.BeanMenuBookAuditMapper" >
+    <resultMap id="BaseResultMap" type="com.kapphk.pms.bean.BeanMenuBookAudit" >
+        <!--  自动生成 2016年04月26日 表与实体类字段对应 -->
+        <id column="id" property="id" jdbcType="BIGINT" />
+        <result column="uid" property="uid" jdbcType="BIGINT" />
+        <result column="menu_id" property="menuId" jdbcType="BIGINT" />
+        <result column="create_time" property="createTime" jdbcType="VARCHAR" />
+        <result column="audit_status" property="auditStatus" jdbcType="VARCHAR" />
+        <result column="audit_remark" property="auditRemark" jdbcType="VARCHAR" />
+    </resultMap>
+    
+    <sql id="Base_Column_List" >
+        <!--  自动生成 2016年04月26日 表字段名称 -->
+        id, uid, menu_id, create_time, audit_status, audit_remark
+    </sql>
+    
+    <sql id="findByPageSql" >
+        <!-- WARNING -  自动生成 2016-04-26  分页查询SQL -->
+        select a.* from sys_menu_book_audit a
+        <where >
+            <if test="param.id != null " >
+                and a.id = #{param.id,jdbcType=BIGINT}
+            </if>
+            <if test="param.uid != null " >
+                and a.uid = #{param.uid,jdbcType=BIGINT}
+            </if>
+            <if test="param.menuId != null " >
+                and a.menu_id = #{param.menuId,jdbcType=BIGINT}
+            </if>
+            <if test="param.auditStatus != null and param.auditStatus != ''" >
+                and a.audit_status = #{param.auditStatus,jdbcType=VARCHAR}
+            </if>
+            <if test="param.auditRemark != null and param.auditRemark != ''" >
+                and a.audit_remark = #{param.auditRemark,jdbcType=VARCHAR}
+            </if>
+        </where>
+        order by a.id desc
+    </sql>
+    
+    <select id="findByPage" resultMap="BaseResultMap" >
+        <!-- WARNING -  自动生成 2016-04-26  分页查询 -->
+        select temp.* from (
+        <include refid="findByPageSql" />
+        ) temp limit #{offset}, #{pageSize}
+    </select>
+    
+    <select id="findByPageCount" resultType="java.lang.Integer" >
+        <!-- WARNING -  自动生成 2016-04-26  分页查询总条数 -->
+        select count(1) from (
+        <include refid="findByPageSql" />
+        ) temp 
+    </select>
+    
+    <select id="findById" resultMap="BaseResultMap" parameterType="java.lang.Long" >
+        <!--  自动生成 2016年04月26日 根据ID查询 -->
+        select 
+        <include refid="Base_Column_List" />
+        from sys_menu_book_audit
+        where id = #{id,jdbcType=BIGINT}
+    </select>
+    
+    <select id="load" resultMap="BaseResultMap" >
+        <!-- WARNING -  自动生成 2016-04-26  根据多个ID查询 -->
+        select 
+        <include refid="Base_Column_List" />
+        from sys_menu_book_audit where id in 
+        <foreach collection="ids" item="item" open="(" separator="," close=")" >
+            #{item}
+        </foreach>
+    </select>
+    
+    <select id="all" resultMap="BaseResultMap" >
+        <!-- WARNING -  自动生成 2016-04-26  查询所有 -->
+        select 
+        <include refid="Base_Column_List" />
+        from sys_menu_book_audit
+    </select>
+    
+    <select id="count" resultType="java.lang.Integer" >
+        <!-- WARNING -  自动生成 2016-04-26 查询总条数 -->
+        select count(1) from sys_menu_book_audit
+    </select>
+    
+    <update id="update" parameterType="com.kapphk.pms.bean.BeanMenuBookAudit" >
+        <!--  自动生成 2016年04月26日 更新数据 -->
+        update sys_menu_book_audit
+        <set >
+            <if test="uid != null" >
+                uid = #{uid,jdbcType=BIGINT},
+            </if>
+            <if test="menuId != null" >
+                menu_id = #{menuId,jdbcType=BIGINT},
+            </if>
+            <if test="createTime != null" >
+                create_time = #{createTime,jdbcType=VARCHAR},
+            </if>
+            <if test="auditStatus != null" >
+                audit_status = #{auditStatus,jdbcType=VARCHAR},
+            </if>
+            <if test="auditRemark != null" >
+                audit_remark = #{auditRemark,jdbcType=VARCHAR},
+            </if>
+        </set>
+        where id = #{id,jdbcType=BIGINT}
+    </update>
+    
+    <insert id="insert" parameterType="com.kapphk.pms.bean.BeanMenuBookAudit" useGeneratedKeys="true" keyProperty="id" >
+        <!--  自动生成 2016年04月26日 添加数据 -->
+        insert into sys_menu_book_audit
+        <trim prefix="(" suffix=")" suffixOverrides="," >
+            <if test="uid != null" >
+                uid,
+            </if>
+            <if test="menuId != null" >
+                menu_id,
+            </if>
+            <if test="createTime != null" >
+                create_time,
+            </if>
+            <if test="auditStatus != null" >
+                audit_status,
+            </if>
+            <if test="auditRemark != null" >
+                audit_remark,
+            </if>
+        </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides="," >
+            <if test="uid != null" >
+                #{uid,jdbcType=BIGINT},
+            </if>
+            <if test="menuId != null" >
+                #{menuId,jdbcType=BIGINT},
+            </if>
+            <if test="createTime != null" >
+                #{createTime,jdbcType=VARCHAR},
+            </if>
+            <if test="auditStatus != null" >
+                #{auditStatus,jdbcType=VARCHAR},
+            </if>
+            <if test="auditRemark != null" >
+                #{auditRemark,jdbcType=VARCHAR},
+            </if>
+        </trim>
+    </insert>
+    
+    <insert id="inserts" parameterType="java.util.List" >
+        <!-- WARNING -  自动生成 2016-04-26 添加多条数据 -->
+        insert into sys_menu_book_audit (uid, menu_id, create_time, audit_status, audit_remark)
+        values
+        <foreach collection="list" item="item" separator="," >
+            (#{item.uid,jdbcType=BIGINT}, #{item.menuId,jdbcType=BIGINT}, #{item.createTime,jdbcType=VARCHAR}, #{item.auditStatus,jdbcType=VARCHAR}, #{item.auditRemark,jdbcType=VARCHAR})
+        </foreach>
+    </insert>
+    
+    <delete id="delete" parameterType="java.lang.Long" >
+        <!--  自动生成 2016年04月26日 删除数据 -->
+        delete from sys_menu_book_audit
+        where id = #{id,jdbcType=BIGINT}
+    </delete>
+    
+    <delete id="deletes" >
+        <!-- WARNING -  自动生成 2016-04-26 删除多条数据 -->
+        delete from sys_menu_book_audit where id in 
+        <foreach collection="ids" item="item" open="(" separator="," close=")" >
+            #{item}
+        </foreach>
+    </delete>
+    
+    <delete id="deleteByEntity" >
+        <!-- WARNING -  自动生成 2016-04-26 通过实体类中的条件删除数据 -->
+        delete from sys_menu_book_audit
+        <where >
+            <if test="param.id != null " >
+                and id = #{param.id,jdbcType=BIGINT}
+            </if>
+            <if test="param.uid != null " >
+                and uid = #{param.uid,jdbcType=BIGINT}
+            </if>
+            <if test="param.menuId != null " >
+                and menu_id = #{param.menuId,jdbcType=BIGINT}
+            </if>
+            <if test="param.auditStatus != null and param.auditStatus != ''" >
+                and audit_status = #{param.auditStatus,jdbcType=VARCHAR}
+            </if>
+            <if test="param.auditRemark != null and param.auditRemark != ''" >
+                and audit_remark = #{param.auditRemark,jdbcType=VARCHAR}
+            </if>
+        </where>
+    </delete>
+    
+    <select id="findAll" resultMap="BaseResultMap" >
+        <!-- WARNING -  自动生成 2016-04-26  通过实体中的条件查询所有 -->
+        select temp.* from (
+        <include refid="findByPageSql" />
+        ) temp 
+    </select>
+    
+    <select id="getMenuBookAudit" resultType="java.util.Map">
+    SELECT
+	CONCAT(l.name,' : ',(CASE WHEN h.audit_status = '0' THEN '审核不通过' ELSE '审核通过' END)) AS auditStatus,
+	(h.create_time) AS auditTime,
+	(h.audit_remark) AS auditRemark
+	FROM
+	sys_menu_book_audit AS h
+	INNER JOIN sys_menu_book AS l ON h.menu_id=l.id
+	WHERE 
+	h.uid = #{uid}
+    </select>
+</mapper>

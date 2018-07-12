@@ -1,0 +1,6 @@
+img{
+	max-width:350px;
+	max-height:200px;
+	width:expression(this.witdh>350?"350px":this.witdh+"px");
+	height:expression(this.height>200?"200px":this.witdh+"px");
+}

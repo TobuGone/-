@@ -1,0 +1,499 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.kapphk.pms.dao.mapper.BeanFoodStoreMapper" >
+    <resultMap id="BaseResultMap" type="com.kapphk.pms.bean.BeanFoodStore" >
+        <!--  自动生成 2016年01月27日 表与实体类字段对应 -->
+        <id column="id" property="id" jdbcType="BIGINT" />
+        <result column="name" property="name" jdbcType="VARCHAR" />
+        <result column="alias" property="alias" jdbcType="VARCHAR" />
+        <result column="standard_status" property="standardStatus" jdbcType="SMALLINT" />
+        <result column="product_place" property="productPlace" jdbcType="VARCHAR" />
+        <result column="selling_place" property="sellingPlace" jdbcType="VARCHAR" />
+        <result column="use_frequence" property="useFrequence" jdbcType="VARCHAR" />
+        <result column="dosage" property="dosage" jdbcType="VARCHAR" />
+        <result column="logo_path" property="logoPath" jdbcType="VARCHAR" />
+        <result column="remark" property="remark" jdbcType="VARCHAR" />
+        <result column="status" property="status" jdbcType="VARCHAR" />
+        <result column="create_time" property="createTime" jdbcType="VARCHAR" />
+        <result column="uid" property="uid" jdbcType="VARCHAR" />
+    </resultMap>    
+    
+    
+    <select id="getFoodStoreByCategoryId" resultType="java.util.Map">
+    	SELECT 
+		fs.`id` fsId,
+		fs.`name` fsName,
+		fs.uid as uid
+		FROM sys_food_store fs 
+		LEFT JOIN sys_foodstore_category fc ON fs.`id` = fc.`store_id`
+		LEFT JOIN sys_food_category c ON c.`id` = fc.`category_id`
+    	where c.id = #{categoryId}
+    	and fs.standard_status = #{standardStatus}
+    </select>
+    
+    
+    <!-- 食材分类、食材关系 (包括一级分类和食材关系、二级分类和食材关系) -->
+   <resultMap id="BaseFoodStoreCategoryMap" type="com.kapphk.pms.bean.FoodStoreFirstCategory" >
+        <id column="fcId" property="fcId" jdbcType="BIGINT" />
+        <result column="fcName" property="fcName" jdbcType="VARCHAR" />
+        <collection property="foodStoreList"  ofType="com.kapphk.pms.bean.FoodStore" >
+              <id column="fsId" property="fsId" jdbcType="BIGINT" />
+               <result column="fsName" property="fsName" jdbcType="VARCHAR" />
+         </collection>
+    </resultMap>
+
+	<select id="getSecondCombox" resultType="java.util.Map">
+		select sfs.`id`,sfs.`name` from sys_food_store sfs LEFT JOIN sys_foodstore_category sfc
+		ON sfs.id =sfc.store_id WHERE sfc.category_id = #{foodId}
+	</select>
+    
+    <select id="find" resultType="java.util.Map">
+    	select id,`name` from sys_food_store
+    </select>
+    
+    <select id="findByStoreId" resultType="java.lang.Long">
+    	select `category_id` from sys_foodstore_category where store_id=#{id}
+    </select>
+    
+     <!-- 查询单条数据  huzi 2018-04-09 -->
+     <select id="findMapById" resultType="java.util.Map">
+    	SELECT
+    		s.`standard_status` AS standardStatus,
+    		s.`logo_path` AS logoPath,status,
+    		s.`status`,
+    		s.`create_time` AS createTime,
+		s.`remark`,
+		s.`logo_path` AS logoPath,
+		s.`use_frequence` AS useFrequence,
+		s.`dosage`,
+		s.`selling_place` AS sellingPlace,
+		s.`product_place` AS productPlace,
+		s.`alias`,
+		s.`name`,
+		s.id,
+		(SELECT GROUP_CONCAT(CAST(mb.id AS CHAR)) FROM sys_menu_book mb,sys_foodstore_menubook smb WHERE mb.id = smb.menu_id AND smb.store_id = s.id) menuId,
+		(SELECT c.id FROM sys_food_category c,sys_foodstore_category sc WHERE sc.category_id = c.id AND sc.store_id = s.`id` AND c.pid = -1 AND c.id >0) firstId,
+		(SELECT c.id FROM sys_food_category c,sys_foodstore_category sc WHERE sc.category_id = c.id AND sc.store_id = s.`id` AND c.pid != -1 AND c.id >0) secondId,
+		s.uid
+		FROM sys_food_store s
+    	where s.id = #{id}
+    </select>
+    
+    
+    <select id="findMapByPageCount" resultType="java.lang.Integer" >
+        SELECT
+		count(1)
+		FROM sys_food_store s
+		<where>
+			1 = 1
+			<if test="searchName != null and searchName != ''">
+				and name like '%${searchName}%' 
+			</if>
+		</where>
+    </select>
+    
+    <!-- 查询食材库数据列表 huangzh 2016-01-25 -->
+    <select id="findMapByPage" resultType="java.util.Map">
+	    SELECT
+		s.`id`,
+		s.`create_time` AS createTime,
+		s.`remark`,
+		CONCAT(s.`use_frequence`,'%') AS frequence,
+		s.`logo_path` AS logoPath,
+		s.`selling_place` AS sellingPlace,
+		s.`product_place` AS productPlace,
+		CONCAT(s.`dosage`,'g') AS dosage,
+		s.`alias`,
+		s.name,
+		(SELECT fc.name FROM sys_food_category fc,sys_foodstore_category fsc WHERE fc.id = fsc.category_id AND fsc.store_id = s.id AND fc.pid = -1 and fc.id &gt; 0 GROUP BY fc.name) AS firstName,
+		(SELECT fc.name FROM sys_food_category fc,sys_foodstore_category fsc WHERE fc.id = fsc.category_id AND fsc.store_id = s.id AND fc.pid != -1 and fc.id &gt; 0 GROUP BY fc.name) AS secondName,
+		(SELECT GROUP_CONCAT(mb.name) FROM sys_menu_book mb,sys_foodstore_menubook fsm WHERE mb.id = fsm.menu_id AND s.id = fsm.store_id) menuName,
+		s.uid
+		FROM sys_food_store s
+		<where>
+			1 = 1
+			<if test="searchName != null and searchName != ''">
+				and name like '%${searchName}%' 
+			</if>
+		</where>
+		order by s.create_time desc
+		limit #{page},#{rows}
+    </select>
+
+    <sql id="Base_Column_List" >
+        <!--  自动生成 2016年01月27日 表字段名称 -->
+        id, name, alias, standard_status, product_place, selling_place, use_frequence, dosage, 
+        logo_path, remark, status, create_time
+    </sql>
+    
+    <sql id="findByPageSql" >
+        <!-- WARNING -  自动生成 2016-01-27  分页查询SQL -->
+        select a.* from sys_food_store a
+        <where >
+            <if test="param.id != null " >
+                and a.id = #{param.id,jdbcType=BIGINT}
+            </if>
+            <if test="param.name != null and param.name != ''" >
+                and a.name like '%${param.name}%' 
+            </if>
+            <if test="param.alias != null and param.alias != ''" >
+                and a.alias like '%${param.alias}%' 
+            </if>
+            <if test="param.standardStatus != null " >
+                and a.standard_status = #{param.standardStatus,jdbcType=SMALLINT}
+            </if>
+            <if test="param.productPlace != null and param.productPlace != ''" >
+                and a.product_place like '%${param.productPlace}%' 
+            </if>
+            <if test="param.sellingPlace != null and param.sellingPlace != ''" >
+                and a.selling_place like '%${param.sellingPlace}%' 
+            </if>
+            <if test="param.useFrequence != null and param.useFrequence != ''" >
+                and a.use_frequence like '%${param.useFrequence}%' 
+            </if>
+            <if test="param.dosage != null and param.dosage != ''" >
+                and a.dosage like '%${param.dosage}%' 
+            </if>
+            <if test="param.logoPath != null and param.logoPath != ''" >
+                and a.logo_path like '%${param.logoPath}%' 
+            </if>
+            <if test="param.remark != null and param.remark != ''" >
+                and a.remark like '%${param.remark}%' 
+            </if>
+            <if test="param.status != null and param.status != ''" >
+                and a.status like '%${param.status}%' 
+            </if>
+            <if test="param.uid != null and param.uid != ''" >
+                and a.uid like '%${param.uid}%' 
+            </if>
+        </where>
+        order by a.id desc
+    </sql>
+    
+    <select id="findByPage" resultMap="BaseResultMap" >
+        <!-- WARNING -  自动生成 2016-01-27  分页查询 -->
+        select temp.* from (
+        <include refid="findByPageSql" />
+        ) temp limit #{offset}, #{pageSize}
+    </select>
+    
+    <select id="findByPageCount" resultType="java.lang.Integer" >
+        <!-- WARNING -  自动生成 2016-01-27  分页查询总条数 -->
+        select count(1) from (
+        <include refid="findByPageSql" />
+        ) temp 
+    </select>
+    
+    <select id="findById" resultMap="BaseResultMap" parameterType="java.lang.Long" >
+        <!--  自动生成 2016年01月27日 根据ID查询 -->
+        select 
+        <include refid="Base_Column_List" />
+        from sys_food_store
+        where id = #{id,jdbcType=BIGINT}
+    </select>
+    
+    <select id="load" resultMap="BaseResultMap" >
+        <!-- WARNING -  自动生成 2016-01-27  根据多个ID查询 -->
+        select 
+        <include refid="Base_Column_List" />
+        from sys_food_store where id in 
+        <foreach collection="ids" item="item" open="(" separator="," close=")" >
+            #{item}
+        </foreach>
+    </select>
+    
+    <select id="all" resultMap="BaseResultMap" >
+        <!-- WARNING -  自动生成 2016-01-27  查询所有 -->
+        select 
+        <include refid="Base_Column_List" />
+        from sys_food_store
+    </select>
+    
+    <select id="count" resultType="java.lang.Integer" >
+        <!-- WARNING -  自动生成 2016-01-27 查询总条数 -->
+        select count(1) from sys_food_store
+    </select>
+    
+    <select id="findByFoodName" resultType="java.lang.Long" >
+        select id from sys_food_store where name = #{name}
+    </select>
+    
+    <update id="update" parameterType="com.kapphk.pms.bean.BeanFoodStore" >
+        <!--  自动生成 2016年01月27日 更新数据 -->
+        update sys_food_store
+        <set >
+            <if test="name != null" >
+                name = #{name,jdbcType=VARCHAR},
+            </if>
+            <if test="alias != null" >
+                alias = #{alias,jdbcType=VARCHAR},
+            </if>
+            <if test="standardStatus != null" >
+                standard_status = #{standardStatus,jdbcType=SMALLINT},
+            </if>
+            <if test="productPlace != null" >
+                product_place = #{productPlace,jdbcType=VARCHAR},
+            </if>
+            <if test="sellingPlace != null" >
+                selling_place = #{sellingPlace,jdbcType=VARCHAR},
+            </if>
+            <if test="useFrequence != null" >
+                use_frequence = #{useFrequence,jdbcType=VARCHAR},
+            </if>
+            <if test="dosage != null" >
+                dosage = #{dosage,jdbcType=VARCHAR},
+            </if>
+            <if test="logoPath != null" >
+                logo_path = #{logoPath,jdbcType=VARCHAR},
+            </if>
+            <if test="remark != null" >
+                remark = #{remark,jdbcType=VARCHAR},
+            </if>
+            <if test="status != null" >
+                status = #{status,jdbcType=VARCHAR},
+            </if>
+            <if test="createTime != null" >
+                create_time = #{createTime,jdbcType=VARCHAR},
+            </if>
+            <if test="uid != null" >
+                uid = #{uid,jdbcType=VARCHAR},
+            </if>
+        </set>
+        where id = #{id,jdbcType=BIGINT}
+    </update>
+    
+    <insert id="insert" parameterType="com.kapphk.pms.bean.BeanFoodStore" useGeneratedKeys="true" keyProperty="id" >
+        <!--  自动生成 2018年04月11日  huzi 添加数据 -->
+        insert into sys_food_store
+        <trim prefix="(" suffix=")" suffixOverrides="," >
+        	<if test="id != null" >
+                id,
+            </if>
+            <if test="name != null" >
+                name,
+            </if>
+            <if test="alias != null" >
+                alias,
+            </if>
+            <if test="standardStatus != null" >
+                standard_status,
+            </if>
+            <if test="productPlace != null" >
+                product_place,
+            </if>
+            <if test="sellingPlace != null" >
+                selling_place,
+            </if>
+            <if test="useFrequence != null" >
+                use_frequence,
+            </if>
+            <if test="dosage != null" >
+                dosage,
+            </if>
+            <if test="logoPath != null" >
+                logo_path,
+            </if>
+            <if test="remark != null" >
+                remark,
+            </if>
+            <if test="status != null" >
+                status,
+            </if>
+            <if test="createTime != null" >
+                create_time,
+            </if>
+            <if test="uid != null" >
+                uid,
+            </if>
+        </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides="," >
+        	<if test="id != null" >
+                #{id,jdbcType=BIGINT},
+            </if>
+            <if test="name != null" >
+                #{name,jdbcType=VARCHAR},
+            </if>
+            <if test="alias != null" >
+                #{alias,jdbcType=VARCHAR},
+            </if>
+            <if test="standardStatus != null" >
+                #{standardStatus,jdbcType=SMALLINT},
+            </if>
+            <if test="productPlace != null" >
+                #{productPlace,jdbcType=VARCHAR},
+            </if>
+            <if test="sellingPlace != null" >
+                #{sellingPlace,jdbcType=VARCHAR},
+            </if>
+            <if test="useFrequence != null" >
+                #{useFrequence,jdbcType=VARCHAR},
+            </if>
+            <if test="dosage != null" >
+                #{dosage,jdbcType=VARCHAR},
+            </if>
+            <if test="logoPath != null" >
+                #{logoPath,jdbcType=VARCHAR},
+            </if>
+            <if test="remark != null" >
+                #{remark,jdbcType=VARCHAR},
+            </if>
+            <if test="status != null" >
+                #{status,jdbcType=VARCHAR},
+            </if>
+            <if test="createTime != null" >
+                #{createTime,jdbcType=VARCHAR},
+            </if>
+            <if test="uid != null" >
+                #{uid,jdbcType=VARCHAR},
+            </if>
+        </trim>
+    </insert>
+    
+    <insert id="inserts" parameterType="java.util.List" >
+        <!-- WARNING -  自动生成 2016-01-27 添加多条数据 -->
+        insert into sys_food_store 
+        	(name, alias, standard_status, product_place, selling_place, use_frequence, dosage, logo_path, remark, status, create_time,uid)
+        values
+        <foreach collection="list" item="item" separator="," >
+            (#{item.name,jdbcType=VARCHAR}, #{item.alias,jdbcType=VARCHAR}, #{item.standardStatus,jdbcType=SMALLINT}, #{item.productPlace,jdbcType=VARCHAR}, #{item.sellingPlace,jdbcType=VARCHAR}, #{item.useFrequence,jdbcType=VARCHAR}, #{item.dosage,jdbcType=VARCHAR}, #{item.logoPath,jdbcType=VARCHAR}, #{item.remark,jdbcType=VARCHAR}, #{item.status,jdbcType=VARCHAR}, #{item.createTime,jdbcType=VARCHAR}, #{item.uid,jdbcType=VARCHAR})
+        </foreach>
+    </insert>
+    
+    <delete id="delete" parameterType="java.lang.Long" >
+        <!--  自动生成 2016年01月27日 删除数据 -->
+        delete from sys_food_store
+        where id = #{id,jdbcType=BIGINT}
+    </delete>
+    
+    <delete id="deletes" >
+        <!-- WARNING -  自动生成 2016-01-27 删除多条数据 -->
+        delete from sys_food_store where id in 
+        <foreach collection="ids" item="item" open="(" separator="," close=")" >
+            #{item}
+        </foreach>
+    </delete>
+    
+    <delete id="deleteByEntity" >
+        <!-- WARNING -  自动生成 2016-01-27 通过实体类中的条件删除数据 -->
+        delete from sys_food_store
+        <where >
+            <if test="param.id != null " >
+                and id = #{param.id,jdbcType=BIGINT}
+            </if>
+            <if test="param.name != null and param.name != ''" >
+                and name = #{param.name,jdbcType=VARCHAR}
+            </if>
+            <if test="param.alias != null and param.alias != ''" >
+                and alias = #{param.alias,jdbcType=VARCHAR}
+            </if>
+            <if test="param.standardStatus != null " >
+                and standard_status = #{param.standardStatus,jdbcType=SMALLINT}
+            </if>
+            <if test="param.productPlace != null and param.productPlace != ''" >
+                and product_place = #{param.productPlace,jdbcType=VARCHAR}
+            </if>
+            <if test="param.sellingPlace != null and param.sellingPlace != ''" >
+                and selling_place = #{param.sellingPlace,jdbcType=VARCHAR}
+            </if>
+            <if test="param.useFrequence != null and param.useFrequence != ''" >
+                and use_frequence = #{param.useFrequence,jdbcType=VARCHAR}
+            </if>
+            <if test="param.dosage != null and param.dosage != ''" >
+                and dosage = #{param.dosage,jdbcType=VARCHAR}
+            </if>
+            <if test="param.logoPath != null and param.logoPath != ''" >
+                and logo_path = #{param.logoPath,jdbcType=VARCHAR}
+            </if>
+            <if test="param.remark != null and param.remark != ''" >
+                and remark = #{param.remark,jdbcType=VARCHAR}
+            </if>
+            <if test="param.status != null and param.status != ''" >
+                and status = #{param.status,jdbcType=VARCHAR}
+            </if>
+            <if test="param.uid != null and param.uid != ''" >
+                and uid = #{param.uid,jdbcType=VARCHAR}
+            </if>
+        </where>
+    </delete>
+    
+    <select id="findAll" resultMap="BaseResultMap" >
+        <!-- WARNING -  自动生成 2016-01-27  通过实体中的条件查询所有 -->
+        select temp.* from (
+        <include refid="findByPageSql" />
+        ) temp 
+    </select>
+    
+    <select id="foodStoreCategory" resultMap="BaseFoodStoreCategoryMap">
+        select fc.id  as fcId , fc.name as fcName,  fs.id as fsId ,fs.name as fsName
+        from sys_food_store  fs ,sys_food_category fc ,sys_foodstore_category fsc ,sys_user_food_store ufs
+        where 
+        ufs.user_id= #{param.userId}
+        and  fs.id = ufs.foot_store_id
+        and  fs.id = fsc.store_id 
+        and  fs.status = '1'
+        and  fs.status = '1'
+        and  fs.standard_status = #{param.standardStatus}
+        <if test="param.foodStoreName != null and param.foodStoreName !='' ">
+         and  fs.name like  %'${param.foodStoreName}'%
+        </if>
+        and  fc.id = fsc.category_id 
+        and  fc.status = '1'
+        and  fc.level  =  #{param.level}
+    </select>
+    
+    <select id="findByCondition" resultType="java.util.Map">
+       SELECT 
+		(fs.name) AS 'name',(fs.id) AS id,(fc.id) AS c_id,(fc.name) AS c_name,(fs.uid) as uid
+		FROM 
+		sys_food_store  fs 
+		INNER JOIN sys_foodstore_category AS fsc ON fs.id=fsc.store_id
+		INNER JOIN sys_food_category AS fc ON fc.id = fsc.category_id
+		WHERE
+		fc.level = 1
+         <if test="param.foodStoreName != null and param.foodStoreName !='' ">
+             and  fs.name like  '%${param.foodStoreName}%'
+         </if>
+         <if test="param.standardStatus != null">
+            and  fs.standard_status = #{param.standardStatus}
+         </if>
+    </select>
+    
+    <select id="findMyFoodByCondition" resultType="java.util.Map">
+       SELECT 
+		(fs.name) AS 'name',(fs.id) AS id,(fc.id) AS c_id,(fc.name) AS c_name,(fs.uid) as uid
+		FROM 
+		sys_user_food_store  ufs 
+		INNER JOIN sys_food_store AS fs ON ufs.foot_store_id=fs.id
+		INNER JOIN sys_foodstore_category AS fsc ON fs.id=fsc.store_id
+		INNER JOIN sys_food_category AS fc ON fc.id = fsc.category_id
+		WHERE
+		fc.level = 1
+		and ufs.user_id = #{param.userId}
+         <if test="param.foodStoreName != null and param.foodStoreName !='' ">
+             and  fs.name like  '%${param.foodStoreName}%'
+         </if>
+         <if test="param.standardStatus != null">
+            and  fs.standard_status = #{param.standardStatus}
+         </if>
+    </select>
+
+    <select id="findMenuBookByFoodStore" resultType="java.util.Map">
+    	SELECT
+		(m.id) AS id,
+		(m.name) AS 'name',
+		(m.logo_path) AS logoPath,
+		(m.click_number) AS clickNumber
+		FROM
+		sys_menu_book AS m
+		INNER JOIN sys_menubook_procedure AS mp ON mp.menu_id = m.id
+		WHERE 
+		m.audit_status = 1 and
+		mp.foods LIKE CONCAT('%',(SELECT l1.name FROM sys_food_store AS l1 WHERE l1.id = #{storeId}),'%')
+		GROUP BY
+		m.id,
+		m.name,
+		m.logo_path,
+		m.click_number
+    </select>
+    
+</mapper>

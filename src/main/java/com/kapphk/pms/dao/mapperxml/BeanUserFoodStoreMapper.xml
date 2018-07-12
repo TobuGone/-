@@ -1,0 +1,167 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.kapphk.pms.dao.mapper.BeanUserFoodStoreMapper" >
+    <resultMap id="BaseResultMap" type="com.kapphk.pms.bean.BeanUserFoodStore" >
+        <!--  自动生成 2016年01月25日 表与实体类字段对应 -->
+        <id column="id" property="id" jdbcType="BIGINT" />
+        <result column="user_id" property="userId" jdbcType="BIGINT" />
+        <result column="foot_store_id" property="footStoreId" jdbcType="BIGINT" />
+        <result column="create_time" property="createTime" jdbcType="VARCHAR" />
+    </resultMap>
+    
+    <sql id="Base_Column_List" >
+        <!--  自动生成 2016年01月25日 表字段名称 -->
+        id, user_id, foot_store_id, create_time
+    </sql>
+    
+    <sql id="findByPageSql" >
+        <!-- WARNING -  自动生成 2016-01-25  分页查询SQL -->
+        select a.* from sys_user_food_store a
+        <where >
+            <if test="param.id != null " >
+                and a.id = #{param.id,jdbcType=BIGINT}
+            </if>
+            <if test="param.userId != null " >
+                and a.user_id = #{param.userId,jdbcType=BIGINT}
+            </if>
+            <if test="param.footStoreId != null " >
+                and a.foot_store_id = #{param.footStoreId,jdbcType=BIGINT}
+            </if>
+        </where>
+        order by a.id desc
+    </sql>
+    
+    <select id="findByPage" resultMap="BaseResultMap" >
+        <!-- WARNING -  自动生成 2016-01-25  分页查询 -->
+        select temp.* from (
+        <include refid="findByPageSql" />
+        ) temp limit #{offset}, #{pageSize}
+    </select>
+    
+    <select id="findByPageCount" resultType="java.lang.Integer" >
+        <!-- WARNING -  自动生成 2016-01-25  分页查询总条数 -->
+        select count(1) from (
+        <include refid="findByPageSql" />
+        ) temp 
+    </select>
+    
+    <select id="findById" resultMap="BaseResultMap" parameterType="java.lang.Long" >
+        <!--  自动生成 2016年01月25日 根据ID查询 -->
+        select 
+        <include refid="Base_Column_List" />
+        from sys_user_food_store
+        where id = #{id,jdbcType=BIGINT}
+    </select>
+    
+    <select id="load" resultMap="BaseResultMap" >
+        <!-- WARNING -  自动生成 2016-01-25  根据多个ID查询 -->
+        select 
+        <include refid="Base_Column_List" />
+        from sys_user_food_store where id in 
+        <foreach collection="ids" item="item" open="(" separator="," close=")" >
+            #{item}
+        </foreach>
+    </select>
+    
+    <select id="all" resultMap="BaseResultMap" >
+        <!-- WARNING -  自动生成 2016-01-25  查询所有 -->
+        select 
+        <include refid="Base_Column_List" />
+        from sys_user_food_store
+    </select>
+    
+    <select id="count" resultType="java.lang.Integer" >
+        <!-- WARNING -  自动生成 2016-01-25 查询总条数 -->
+        select count(1) from sys_user_food_store
+    </select>
+    
+    <update id="update" parameterType="com.kapphk.pms.bean.BeanUserFoodStore" >
+        <!--  自动生成 2016年01月25日 更新数据 -->
+        update sys_user_food_store
+        <set >
+            <if test="userId != null" >
+                user_id = #{userId,jdbcType=BIGINT},
+            </if>
+            <if test="footStoreId != null" >
+                foot_store_id = #{footStoreId,jdbcType=BIGINT},
+            </if>
+            <if test="createTime != null" >
+                create_time = #{createTime,jdbcType=VARCHAR},
+            </if>
+        </set>
+        where id = #{id,jdbcType=BIGINT}
+    </update>
+    
+    <insert id="insert" parameterType="com.kapphk.pms.bean.BeanUserFoodStore" useGeneratedKeys="true" keyProperty="id" >
+        <!--  自动生成 2016年01月25日 添加数据 -->
+        insert into sys_user_food_store
+        <trim prefix="(" suffix=")" suffixOverrides="," >
+            <if test="userId != null" >
+                user_id,
+            </if>
+            <if test="footStoreId != null" >
+                foot_store_id,
+            </if>
+            <if test="createTime != null" >
+                create_time,
+            </if>
+        </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides="," >
+            <if test="userId != null" >
+                #{userId,jdbcType=BIGINT},
+            </if>
+            <if test="footStoreId != null" >
+                #{footStoreId,jdbcType=BIGINT},
+            </if>
+            <if test="createTime != null" >
+                #{createTime,jdbcType=VARCHAR},
+            </if>
+        </trim>
+    </insert>
+    
+    <insert id="inserts" parameterType="java.util.List" >
+        <!-- WARNING -  自动生成 2016-01-25 添加多条数据 -->
+        insert into sys_user_food_store (user_id, foot_store_id, create_time)
+        values
+        <foreach collection="list" item="item" separator="," >
+            (#{item.userId,jdbcType=BIGINT}, #{item.footStoreId,jdbcType=BIGINT}, #{item.createTime,jdbcType=VARCHAR})
+        </foreach>
+    </insert>
+    
+    <delete id="delete" parameterType="java.lang.Long" >
+        <!--  自动生成 2016年01月25日 删除数据 -->
+        delete from sys_user_food_store
+        where id = #{id,jdbcType=BIGINT}
+    </delete>
+    
+    <delete id="deletes" >
+        <!-- WARNING -  自动生成 2016-01-25 删除多条数据 -->
+        delete from sys_user_food_store where id in 
+        <foreach collection="ids" item="item" open="(" separator="," close=")" >
+            #{item}
+        </foreach>
+    </delete>
+    
+    <delete id="deleteByEntity" >
+        <!-- WARNING -  自动生成 2016-01-25 通过实体类中的条件删除数据 -->
+        delete from sys_user_food_store
+        <where >
+            <if test="param.id != null " >
+                and id = #{param.id,jdbcType=BIGINT}
+            </if>
+            <if test="param.userId != null " >
+                and user_id = #{param.userId,jdbcType=BIGINT}
+            </if>
+            <if test="param.footStoreId != null " >
+                and foot_store_id = #{param.footStoreId,jdbcType=BIGINT}
+            </if>
+        </where>
+    </delete>
+    
+    <select id="findAll" resultMap="BaseResultMap" >
+        <!-- WARNING -  自动生成 2016-01-25  通过实体中的条件查询所有 -->
+        select temp.* from (
+        <include refid="findByPageSql" />
+        ) temp 
+    </select>
+</mapper>
