@@ -86,7 +86,7 @@ public class InterfaceBeanSystemMessageController {
 	
 	
 	/**
-	 * PMS固件版本更新
+	 * 比对是否是最新版本固件
 	 * 2018-06-11  huzi
 	 * @param hardwareVersion   硬件型号
 	 * @param softwareVersion	软件型号
